@@ -5,7 +5,7 @@ Statická stránka, ktorá 2× denne automaticky prečíta letáky Kauflandu a B
 | Čo | Kde |
 |---|---|
 | Kontrola letákov 2× denne | **GitHub Actions** ([.github/workflows/site.yml](.github/workflows/site.yml)) |
-| Stránka na matusep.me | **GitHub Pages** |
+| Stránka na energetaky.matusep.me | **GitHub Pages** |
 | Odberatelia, potvrdenie odberu, odhlásenie, odosielanie e-mailov | **Brevo** (zoznam pre každú značku) |
 | Nájdené akcie | [data/deals.json](data/deals.json) v repozitári (verejné ceny, žiadne osobné údaje) |
 
@@ -41,13 +41,13 @@ Skopíruj jej `"id"` z [data/deals.json](data/deals.json) do [data/hidden.json](
 
 1. **Brevo:**
    - Vytvor 3 zoznamy (Monster, Red Bull, Hell).
-   - Vytvor prihlasovací formulár s double opt-in a presmerovaniami na `/skontroluj-email/` a `/odber-aktivny/`.
+   - Vytvor prihlasovací formulár s double opt-in a presmerovaniami na `https://energetaky.matusep.me/skontroluj-email/` a `/odber-aktivny/`.
    - Vygeneruj API kľúč a v Security vypni blokovanie neznámych IP, lebo GitHub Actions majú zakaždým inú IP.
 2. **[site.config.json](site.config.json):** doplň `operatorName`, `brevo.formUrl` (adresa `action` z Brevo formulára) a ID zoznamov v `brevo.lists`.
 3. **GitHub → Settings:**
    - **Secrets and variables → Actions:** pridaj secret `BREVO_API_KEY`.
-   - **Pages:** Source = *GitHub Actions*, Custom domain = `matusep.me`, zapni *Enforce HTTPS*.
-4. **Namecheap DNS:** 4× A záznam `@` na GitHub Pages (`185.199.108–111.153`) a CNAME `www` → `matusep.github.io`.
+   - **Pages:** Source = *GitHub Actions*, Custom domain = `energetaky.matusep.me`, zapni *Enforce HTTPS*.
+4. **Namecheap DNS:** CNAME `energetaky` → `matusep.github.io` (`matusep.me` zostáva portfóliu).
 
 ## Lokálne
 
