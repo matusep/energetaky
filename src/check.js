@@ -56,9 +56,11 @@ else if (!brevoApiKey) {
   await sendDealCampaigns(pending, { dryRun: true });
   report.notify = 'skúšobný beh bez BREVO_API_KEY – nič neodoslané';
 } else {
-  const sentIds = new Set(await sendDealCampaigns(pending));
-  for (const d of pending) if (sentIds.has(d.id)) d.notifiedAt = report.at;
-  report.notify = `oznámené akcie: ${sentIds.size} z ${pending.length}`;
+  const { sentIds, errors } = await sendDealCampaigns(pending);
+  const sent = new Set(sentIds);
+  for (const d of pending) if (sent.has(d.id)) d.notifiedAt = report.at;
+  report.notify = `oznámené akcie: ${sent.size} z ${pending.length}`;
+  if (errors.length) report.notifyErrors = errors;
 }
 
 state.lastCheck = report;

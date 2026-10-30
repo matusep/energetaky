@@ -62,10 +62,11 @@ function subjectFor(brandName, deals) {
 
 /**
  * Pre každú značku pošle jednu kampaň na jej Brevo zoznam.
- * Vráti id akcií, ktoré sa podarilo oznámiť (ostatné sa skúsia pri ďalšej kontrole).
+ * Vráti id akcií, ktoré sa podarilo oznámiť (ostatné sa skúsia pri ďalšej kontrole), a chyby z Brevo.
  */
 export async function sendDealCampaigns(deals, { dryRun = false } = {}) {
   const sentIds = [];
+  const errors = [];
   const byBrand = Map.groupBy(deals, (d) => d.brand);
 
   for (const [brand, brandDeals] of byBrand) {
@@ -91,7 +92,8 @@ export async function sendDealCampaigns(deals, { dryRun = false } = {}) {
       sentIds.push(...brandDeals.map((d) => d.id));
     } catch (err) {
       console.error(`Kampaň pre ${brandName} zlyhala: ${err.message}`);
+      errors.push(`${brandName}: ${err.message}`);
     }
   }
-  return sentIds;
+  return { sentIds, errors };
 }
