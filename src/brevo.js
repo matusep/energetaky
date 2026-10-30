@@ -3,17 +3,18 @@ import { BRANDS } from './brands.js';
 import { escapeHtml, formatPrice, formatDate, discountPercent, storeLocative } from './format.js';
 
 // Odberatelia sú v Brevo zoznamoch (jeden zoznam = jedna značka). Brevo rieši potvrdenie odberu aj odhlásenie,
-// my mu len pošleme kampaň pre daný zoznam.
+// my mu len pošleme kampaň pre daný zoznam. E-mailové adresy nikde neukladáme ani nevypisujeme.
 
-async function brevo(path, body) {
+async function brevo(path, { method = 'POST', body } = {}) {
   const res = await fetch(`https://api.brevo.com/v3${path}`, {
-    method: 'POST',
+    method,
     headers: { 'api-key': brevoApiKey, 'content-type': 'application/json', accept: 'application/json' },
-    body: JSON.stringify(body),
+    body: body === undefined ? undefined : JSON.stringify(body),
     signal: AbortSignal.timeout(30_000),
   });
-  if (!res.ok) throw new Error(`Brevo ${path}: HTTP ${res.status} ${(await res.text()).slice(0, 300)}`);
-  return res.status === 204 ? null : res.json();
+  if (!res.ok) throw new Error(`Brevo ${method} ${path.split('?')[0]}: HTTP ${res.status} ${(await res.text()).slice(0, 300)}`);
+  const text = await res.text();
+  return text ? JSON.parse(text) : null;
 }
 
 const legalFooter =
@@ -33,14 +34,15 @@ function dealHtml(deal) {
   </div>`;
 }
 
-export function campaignHtml(brandName, deals) {
+export function campaignHtml(heading, deals, intro = '') {
   return `<!doctype html>
 <html lang="sk"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"></head>
 <body style="margin:0;background:#0f1220;font-family:-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:#e8eaf6">
   <div style="max-width:560px;margin:0 auto;padding:32px 20px">
     <div style="font-size:20px;font-weight:800;margin-bottom:24px">⚡ ${escapeHtml(config.siteName)}</div>
     <div style="background:#181c30;border-radius:16px;padding:28px;line-height:1.55">
-      <h1 style="margin:0 0 6px;font-size:22px">${escapeHtml(brandName)} je v akcii ⚡</h1>
+      <h1 style="margin:0 0 6px;font-size:22px">${escapeHtml(heading)}</h1>
+      ${intro ? `<p style="margin:0 0 8px;color:#c9cde6">${escapeHtml(intro)}</p>` : ''}
       ${deals.map(dealHtml).join('')}
       <p style="margin:20px 0 0"><a href="${escapeHtml(config.baseUrl)}" style="display:inline-block;background:#ffb020;color:#14141f;text-decoration:none;font-weight:700;padding:12px 22px;border-radius:10px">Zobraziť všetky akcie</a></p>
     </div>
@@ -58,6 +60,22 @@ function subjectFor(brandName, deals) {
     return `⚡ ${brandName} v akcii v ${storeLocative(d.store)}: ${formatPrice(d.priceCents)}`;
   }
   return `⚡ ${brandName} v akcii (${deals.length} ${deals.length < 5 ? 'ponuky' : 'ponúk'})`;
+}
+
+async function sendCampaign({ name, listId, subject, html }) {
+  const campaign = await brevo('/emailCampaigns', {
+    body: {
+      name: `${name} ${new Date().toISOString().slice(0, 16)}`,
+      subject,
+      sender: config.sender,
+      // Inak by Brevo dalo ako adresu na odpoveď súkromný e-mail z účtu.
+      replyTo: config.contactEmail,
+      htmlContent: html,
+      recipients: { listIds: [listId] },
+    },
+  });
+  await brevo(`/emailCampaigns/${campaign.id}/sendNow`, { body: {} });
+  console.log(`Odoslaná kampaň #${campaign.id}: ${subject}`);
 }
 
 /**
@@ -80,17 +98,7 @@ export async function sendDealCampaigns(deals, { dryRun = false } = {}) {
     }
 
     try {
-      const campaign = await brevo('/emailCampaigns', {
-        name: `${brandName} ${new Date().toISOString().slice(0, 16)}`,
-        subject,
-        sender: config.sender,
-        // Inak by Brevo dalo ako adresu na odpoveď súkromný e-mail z účtu.
-        replyTo: config.contactEmail,
-        htmlContent: campaignHtml(brandName, brandDeals),
-        recipients: { listIds: [listId] },
-      });
-      await brevo(`/emailCampaigns/${campaign.id}/sendNow`, {});
-      console.log(`Odoslaná kampaň #${campaign.id}: ${subject}`);
+      await sendCampaign({ name: brandName, listId, subject, html: campaignHtml(`${brandName} je v akcii ⚡`, brandDeals) });
       sentIds.push(...brandDeals.map((d) => d.id));
     } catch (err) {
       console.error(`Kampaň pre ${brandName} zlyhala: ${err.message}`);
@@ -98,4 +106,85 @@ export async function sendDealCampaigns(deals, { dryRun = false } = {}) {
     }
   }
   return { sentIds, errors };
+}
+
+// --- Uvítanie nových odberateľov ---
+// Kampaň o akcii odchádza len raz. Kto sa prihlási neskôr, dostane od nás „uvítanie“ s akciami, ktoré už dostali ostatní.
+// Aby nikto nedostal uvítanie dvakrát, zapíšeme mu do Brevo atribút UVITANE so zoznamom značiek, ktoré už má vybavené.
+
+const WELCOMED = 'UVITANE';
+export const NOTHING_NEW = 'žiadni noví odberatelia';
+
+async function listContacts(listId) {
+  const contacts = [];
+  for (let offset = 0; ; offset += 500) {
+    const page = await brevo(`/contacts/lists/${listId}/contacts?limit=500&offset=${offset}`, { method: 'GET' });
+    contacts.push(...(page?.contacts ?? []));
+    if (!page || contacts.length >= page.count || !page.contacts?.length) return contacts;
+  }
+}
+
+const welcomedBrands = (contact) => String(contact.attributes?.[WELCOMED] ?? '').split(',').filter(Boolean);
+
+/** Pomocný zoznam „Uvítanie – značka“ v rovnakom priečinku ako zoznam značky (vytvorí sa raz, id je v state.json). */
+async function welcomeListId(brand, brandListId, state) {
+  state.welcomeLists ??= {};
+  if (state.welcomeLists[brand]) return state.welcomeLists[brand];
+  const { folderId } = await brevo(`/contacts/lists/${brandListId}`, { method: 'GET' });
+  const { id } = await brevo('/contacts/lists', { body: { name: `Uvítanie – ${BRANDS[brand].name} (automaticky)`, folderId } });
+  state.welcomeLists[brand] = id;
+  return id;
+}
+
+/**
+ * `announced` sú platné akcie, o ktorých už odišla kampaň. Nový odberateľ dostane tie, ktoré boli oznámené
+ * pred jeho registráciou (novšie mu prišli bežnou kampaňou).
+ */
+export async function welcomeNewSubscribers(announced, state) {
+  const summary = [];
+  try {
+    await brevo(`/contacts/attributes/normal/${WELCOMED}`, { body: { type: 'text' } });
+  } catch (err) {
+    if (!/HTTP 400/.test(err.message)) throw err; // 400 = atribút už existuje
+  }
+
+  for (const [brand, rawListId] of Object.entries(config.brevo.lists)) {
+    const listId = Number(rawListId);
+    if (!listId) continue;
+    const brandName = BRANDS[brand].name;
+
+    // Pomocný zoznam vyprázdnime až teraz – predošlá uvítacia kampaň je už dávno odoslaná.
+    if (state.welcomeLists?.[brand]) {
+      await brevo(`/contacts/lists/${state.welcomeLists[brand]}/contacts/remove`, { body: { all: true } }).catch(() => {});
+    }
+
+    const fresh = (await listContacts(listId)).filter((c) => !c.emailBlacklisted && !welcomedBrands(c).includes(brand));
+    if (!fresh.length) continue;
+
+    // Kontakty zoskupíme podľa toho, ktoré akcie im chýbajú (zvyčajne je to pre všetkých rovnaké).
+    const groups = Map.groupBy(fresh, (c) =>
+      announced.filter((d) => d.brand === brand && Date.parse(d.notifiedAt) < Date.parse(c.createdAt)).map((d) => d.id).join('|'),
+    );
+    let sent = 0;
+    for (const [key, contacts] of groups) {
+      const deals = announced.filter((d) => key.split('|').includes(d.id));
+      if (deals.length) {
+        const tempId = await welcomeListId(brand, listId, state);
+        await brevo(`/contacts/lists/${tempId}/contacts/add`, { body: { emails: contacts.map((c) => c.email) } });
+        await sendCampaign({
+          name: `Uvítanie ${brandName}`,
+          listId: tempId,
+          subject: `⚡ Vitaj! ${subjectFor(brandName, deals).slice(2)}`,
+          html: campaignHtml(`Vitaj! ${brandName} je práve v akcii ⚡`, deals, 'Ďakujeme za odber. Tieto akcie platia práve teraz – o ďalších ti dáme vedieť hneď, ako sa objavia v letákoch.'),
+        });
+        sent += contacts.length;
+      }
+      for (const c of contacts) {
+        const attributes = { [WELCOMED]: [...welcomedBrands(c), brand].join(',') };
+        await brevo(`/contacts/${encodeURIComponent(c.email)}`, { method: 'PUT', body: { attributes } });
+      }
+    }
+    summary.push(`${brandName}: ${fresh.length} nových, uvítanie s akciami ${sent}`);
+  }
+  return summary.length ? summary.join('; ') : NOTHING_NEW;
 }

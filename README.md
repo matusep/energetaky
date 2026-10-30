@@ -20,6 +20,10 @@ Statická stránka, ktorá 2× denne automaticky prečíta letáky Kauflandu a B
 
 Po pushnutí kódu alebo zmene `data/hidden.json` sa stránka len znova zostaví, bez kontroly a bez e-mailov. Kontrolu hneď spustíš v záložke **Actions → Kontrola letákov a stránka → Run workflow**.
 
+### Noví odberatelia
+
+Kampaň o akcii odchádza len raz. Kto sa prihlási neskôr, dostane do hodiny **uvítací e-mail s akciami, ktoré už dostali ostatní** ([.github/workflows/welcome.yml](.github/workflows/welcome.yml), [src/welcome.js](src/welcome.js)). Program v Brevo zapíše kontaktu atribút , aby uvítanie nedostal dvakrát, a na rozoslanie použije pomocný zoznam „Uvítanie – značka (automaticky)“. Ten nemaž. API kľúč na to potrebuje oprávnenie **Contacts = All**.
+
 ### Zle prečítaná akcia
 
 Skopíruj jej `"id"` z [data/deals.json](data/deals.json) do [data/hidden.json](data/hidden.json), napr. `["billa:d07afa74f7:1:redbull:100"]`. Stačí to upraviť priamo na GitHube cez ikonu ceruzky. Stránka sa do minúty aktualizuje a o akcii nikto nedostane e-mail.

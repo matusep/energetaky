@@ -1,0 +1,45 @@
+name: Uvítanie nových odberateľov
+
+on:
+  schedule:
+    # Každú hodinu. Letáky sa tu nečítajú – len sa pozrie do Brevo, či pribudli noví odberatelia.
+    - cron: '45 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+# Súbeh s kontrolou letákov pri ukladaní data/ rieši git pull --rebase nižšie.
+concurrency:
+  group: welcome
+  cancel-in-progress: false
+
+jobs:
+  welcome:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+
+      - name: Uvítanie nových odberateľov
+        run: npm run welcome
+        env:
+          BREVO_API_KEY: ${{ secrets.BREVO_API_KEY }}
+
+      - name: Uloženie stavu
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data
+          if ! git diff --cached --quiet; then
+            git commit -m "Uvítanie nových odberateľov"
+            git pull --rebase
+            git push
+          fi

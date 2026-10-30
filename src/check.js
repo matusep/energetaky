@@ -5,6 +5,7 @@ import { fetchKaufland } from './sources/kaufland.js';
 import { fetchBilla } from './sources/billa.js';
 import { sendDealCampaigns } from './brevo.js';
 import { build } from './build.js';
+import { runWelcome } from './welcome.js';
 
 // Ak by kontrola naraz našla viac nových akcií, je to skôr chyba parsera než realita – e-maily vtedy nepošleme sami.
 const MAX_AUTO_NOTIFY = 10;
@@ -63,8 +64,10 @@ else if (!brevoApiKey) {
   if (errors.length) report.notifyErrors = errors;
 }
 
-state.lastCheck = report;
 store.saveDeals(deals.values());
+// Odberatelia prihlásení po odoslaní kampane dostanú uvítanie s už oznámenými akciami.
+report.welcome = await runWelcome(state);
+state.lastCheck = report;
 store.saveState(state);
 console.log('Kontrola letákov:', JSON.stringify(report));
 build();
