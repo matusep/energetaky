@@ -1,7 +1,7 @@
 {
   "billaPdf": "https://view.publitas.com/64070/3470637/pdfs/b82fead5-3f28-4bd6-bea0-692350accf71.pdf",
   "lastCheck": {
-    "at": "2026-10-30T11:13:50.109Z",
+    "at": "2026-10-30T11:44:02.832Z",
     "kaufland": {
       "ok": true,
       "found": 0,
@@ -13,7 +13,7 @@
     },
     "removed": 0,
     "notify": "nič nové",
-    "welcome": "žiadni noví odberatelia"
+    "welcome": "Monster: 2 nových, uvítanie s akciami 0; Red Bull: 2 nových, uvítanie s akciami 2; Hell: 2 nových, uvítanie s akciami 0"
   },
   "welcomeLists": {
     "redbull": 6
