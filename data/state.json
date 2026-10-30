@@ -1,7 +1,7 @@
 {
   "billaPdf": "https://view.publitas.com/64070/3470637/pdfs/b82fead5-3f28-4bd6-bea0-692350accf71.pdf",
   "lastCheck": {
-    "at": "2026-10-30T10:30:21.470Z",
+    "at": "2026-10-30T10:36:04.619Z",
     "kaufland": {
       "ok": true,
       "found": 0,
@@ -12,6 +12,6 @@
       "skipped": true
     },
     "removed": 0,
-    "notify": "skúšobný beh bez BREVO_API_KEY – nič neodoslané"
+    "notify": "oznámené akcie: 0 z 1"
   }
 }
