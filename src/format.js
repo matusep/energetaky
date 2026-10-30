@@ -16,10 +16,15 @@ export function formatDate(iso) {
   return `${d}. ${m}. ${y}`;
 }
 
+export const formatDateTime = (iso) =>
+  new Date(iso).toLocaleString('sk-SK', { timeZone: 'Europe/Bratislava', dateStyle: 'short', timeStyle: 'short' });
+
+export const today = () => new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Bratislava' });
+
 /** „v Kauflande“, „v Bille“ */
 export const storeLocative = (store) => (store === 'billa' ? 'Bille' : 'Kauflande');
 
 export function discountPercent(deal) {
-  if (!deal.regular_price_cents || deal.regular_price_cents <= deal.price_cents) return null;
-  return Math.round((1 - deal.price_cents / deal.regular_price_cents) * 100);
+  if (!deal.regularPriceCents || deal.regularPriceCents <= deal.priceCents) return null;
+  return Math.round((1 - deal.priceCents / deal.regularPriceCents) * 100);
 }

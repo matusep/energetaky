@@ -1,0 +1,66 @@
+name: Kontrola letákov a stránka
+
+on:
+  schedule:
+    # 2× denne (čas je v UTC): 5:17 a 15:17 UTC = 6:17 a 16:17 v zime, o hodinu neskôr v lete.
+    - cron: '17 5,15 * * *'
+  # Tlačidlo „Run workflow“ v záložke Actions – spustí kontrolu hneď.
+  workflow_dispatch:
+  # Po zmene kódu alebo data/hidden.json sa stránka len znova zostaví (bez kontroly a e-mailov).
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: site
+  cancel-in-progress: false
+
+jobs:
+  site:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+
+      - name: Kontrola letákov a upozornenia
+        if: github.event_name != 'push'
+        run: npm run check
+        env:
+          BREVO_API_KEY: ${{ secrets.BREVO_API_KEY }}
+
+      - name: Zostavenie stránky
+        if: github.event_name == 'push'
+        run: npm run build
+
+      - name: Uloženie nájdených akcií do repozitára
+        if: github.event_name != 'push'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data
+          if ! git diff --cached --quiet; then
+            git commit -m "Aktualizácia akcií z letákov"
+            git pull --rebase
+            git push
+          fi
+
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: dist
+      - id: deploy
+        uses: actions/deploy-pages@v4

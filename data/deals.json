@@ -1,0 +1,16 @@
+[
+  {
+    "id": "billa:d07afa74f7:1:redbull:100",
+    "store": "billa",
+    "brand": "redbull",
+    "product": "Red Bull, energetický nápoj, rôzne druhy, 0,25 l",
+    "priceCents": 100,
+    "regularPriceCents": 185,
+    "validFrom": "2026-10-28",
+    "validTo": "2026-11-03",
+    "note": "cena pri kúpe od 2 ks",
+    "sourceUrl": "https://www.billa.sk/letaky-a-akcie/aktualny-letak",
+    "firstSeen": "2026-10-30T09:09:45.372Z",
+    "notifiedAt": null
+  }
+]

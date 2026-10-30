@@ -1,90 +1,73 @@
 # Akčná plechovka ⚡
 
-Stránka, ktorá automaticky sleduje letáky Kauflandu a Billy a pošle e-mail odberateľom, keď sú **Monster, Red Bull alebo Hell** v akcii.
+Statická stránka, ktorá 2× denne automaticky prečíta letáky Kauflandu a Billy a pošle e-mail odberateľom, keď sú **Monster, Red Bull alebo Hell** v akcii. Celé to beží zadarmo, bez servera:
+
+| Čo | Kde |
+|---|---|
+| Kontrola letákov 2× denne | **GitHub Actions** ([.github/workflows/site.yml](.github/workflows/site.yml)) |
+| Stránka na matusep.me | **GitHub Pages** |
+| Odberatelia, potvrdenie odberu, odhlásenie, odosielanie e-mailov | **Brevo** (zoznam pre každú značku) |
+| Nájdené akcie | [data/deals.json](data/deals.json) v repozitári (verejné ceny, žiadne osobné údaje) |
 
 ## Ako to funguje
 
-1. Každých 12 hodín si program prečíta verejné letáky:
-   - **Kaufland:** [prehľad akciových výrobkov](https://predajne.kaufland.sk/aktualna-ponuka/prehlad.html) za aktuálny aj budúci týždeň. Stránka má v sebe dáta o každej ponuke (názov, cena, platnosť).
-   - **BILLA:** zo stránky [aktuálny leták](https://www.billa.sk/letaky-a-akcie/aktualny-letak) stiahne PDF cez odkaz „Stiahnuť PDF“, prečíta z neho text a zloží ceny podľa polohy na stránke. Rovnaký leták sa druhýkrát nesťahuje.
-2. Nová akcia sa hneď zobrazí na stránke a odberatelia, ktorých zaujíma daný obchod a značka, dostanú jeden e-mail.
-3. V `/admin` vidíš stav poslednej kontroly a môžeš ju spustiť ručne. Zle prečítanú akciu skryješ a akciu vieš pridať aj ručne.
+1. GitHub Actions spustí `npm run check`:
+   - **Kaufland:** prečíta [prehľad akciových výrobkov](https://predajne.kaufland.sk/aktualna-ponuka/prehlad.html) za aktuálny aj budúci týždeň.
+   - **BILLA:** zo stránky [aktuálny leták](https://www.billa.sk/letaky-a-akcie/aktualny-letak) stiahne PDF (len do pamäte, na disk sa neukladá) a prečíta z neho ceny. Rovnaký leták sa druhýkrát nesťahuje.
+   - Akcie, ktorým skončila platnosť, sa hneď zmažú.
+2. Pre nové akcie pošle cez Brevo kampaň na zoznam danej značky.
+3. Uloží `data/` do repozitára a nasadí stránku z `dist/` na GitHub Pages.
 
-### Poistky proti chybám
+Po pushnutí kódu alebo zmene `data/hidden.json` sa stránka len znova zostaví, bez kontroly a bez e-mailov. Kontrolu hneď spustíš v záložke **Actions → Kontrola letákov a stránka → Run workflow**.
 
-- Ak kontrola naraz nájde viac ako 10 nových akcií, e-maily sa automaticky nepošlú. Pravdepodobne ide o chybu, takže ich najprv skontroluj v admine.
+### Zle prečítaná akcia
+
+Skopíruj jej `"id"` z [data/deals.json](data/deals.json) do [data/hidden.json](data/hidden.json), napr. `["billa:d07afa74f7:1:redbull:100"]`. Stačí to upraviť priamo na GitHube cez ikonu ceruzky. Stránka sa do minúty aktualizuje a o akcii nikto nedostane e-mail.
+
+### Poistky
+
+- Ak kontrola naraz nájde viac ako 10 nových akcií, e-maily sa nepošlú. Pravdepodobne ide o chybu, skontroluj `data/deals.json`.
 - Billa cena sa overuje voči bežnej cene a percentu zľavy (±10 %). Ak nesedí, akcia sa nepridá.
-- Regulárne výrazy pre značky sú prísne, aby sa napr. kečup „Hellmann´s“ nepovažoval za Hell. Značky sa nastavujú v [src/brands.js](src/brands.js).
-- Ak obchod zmení stránku a parser prestane fungovať, admin zobrazí chybu.
+- Značky majú prísne vzory, aby napr. „Hellmann´s“ nebol Hell ([src/brands.js](src/brands.js)).
+- Bez `BREVO_API_KEY` beží kontrola naostro, ale e-maily nepošle a len vypíše, čo by poslala.
 
 ### Slušné sťahovanie dát
 
-- Číta sa len verejne dostupný obsah, ktorý robots.txt nezakazuje. robots.txt sa kontroluje pri každej požiadavke.
-- Program sa predstavuje poctivo (`AkcnaPlechovkaBot/1.0` + adresa stránky a kontaktný e-mail).
-- Kontrola beží najviac raz za 6 hodín (predvolene 12), s pauzou medzi požiadavkami.
-- **Nič sa neobchádza.** Ak obchod vráti CAPTCHA, 403 alebo 429, kontrola sa pre daný obchod zastaví a admin ukáže chybu.
-- Neukladajú sa obrázky ani texty letákov, len fakty (produkt, cena, platnosť) s odkazom na originál.
+- Číta sa len verejný obsah, ktorý robots.txt nezakazuje. Program sa predstavuje ako `AkcnaPlechovkaBot/1.0` s kontaktom.
+- Kontrola beží 2× denne. **Nič sa neobchádza:** pri CAPTCHA, 403 alebo 429 sa kontrola obchodu zastaví a v logu Actions je chyba.
+- Ukladajú sa len fakty (produkt, cena, platnosť) s odkazom na originál, nie obrázky ani texty letákov.
 
-## Spustenie na počítači
+## Nastavenie (raz)
+
+1. **Brevo:**
+   - Vytvor 3 zoznamy (Monster, Red Bull, Hell).
+   - Vytvor prihlasovací formulár s double opt-in a presmerovaniami na `/skontroluj-email/` a `/odber-aktivny/`.
+   - Vygeneruj API kľúč a v Security vypni blokovanie neznámych IP, lebo GitHub Actions majú zakaždým inú IP.
+2. **[site.config.json](site.config.json):** doplň `operatorName`, `brevo.formUrl` (adresa `action` z Brevo formulára) a ID zoznamov v `brevo.lists`.
+3. **GitHub → Settings:**
+   - **Secrets and variables → Actions:** pridaj secret `BREVO_API_KEY`.
+   - **Pages:** Source = *GitHub Actions*, Custom domain = `matusep.me`, zapni *Enforce HTTPS*.
+4. **Namecheap DNS:** 4× A záznam `@` na GitHub Pages (`185.199.108–111.153`) a CNAME `www` → `matusep.github.io`.
+
+## Lokálne
 
 ```bash
 npm install
-cp .env.example .env      # potom v .env vyplň hodnoty
-npm start                 # http://localhost:3000
+npm run check     # skutočná kontrola letákov (bez BREVO_API_KEY nič neodošle) + zostavenie
+npm run build     # len zostavenie stránky z data/
+npm run preview   # náhľad na http://localhost:3000
 ```
 
-Bez nastaveného SMTP sa e-maily len vypíšu do konzoly, takže sa dá všetko otestovať bez odosielania.
+Lokálnu kontrolu púšťaj len na skúšanie. Zmeny v `data/` necommituj, inak sa pobijú s automatickými commitmi z Actions. Vrátiš ich cez `git checkout data`.
 
-## Nasadenie na vlastnú doménu
+## Právne a bezpečnostné veci
 
-Treba hosting s **Node.js 22.13+** (alebo Dockerom), **trvalým diskom** pre databázu a aspoň **512 MB RAM**, lebo spracovanie Billa PDF (~80 MB) zaberie asi 300 MB.
-
-Možnosti: lacný VPS (Hetzner, Websupport VPS) s Dockerom alebo Railway či Fly.io s volume. Docker:
-
-```bash
-docker build -t akcna-plechovka .
-docker run -d --name akcna-plechovka --restart unless-stopped -p 3000:3000 \
-  --env-file .env -v akcna-data:/app/data akcna-plechovka
-```
-
-Pred aplikáciu daj HTTPS (Caddy alebo Nginx + Let's Encrypt, prípadne to rieši hosting).
-
-Nastavenia v produkcii:
-- `NODE_ENV=production`
-- `BASE_URL=https://tvoja-domena.sk`
-- `TRUST_PROXY=1`, ak beží za proxy
-- silné `ADMIN_PASSWORD`
-
-**E-maily:** použi poskytovateľa z EÚ, napr. [Brevo](https://www.brevo.com) (zadarmo 300 e-mailov/deň). Odosielaj z vlastnej domény a nastav **SPF, DKIM a DMARC**, inak budú e-maily padať do spamu.
-
-## Čo je ošetrené
-
-**Ochrana osobných údajov (GDPR)**
-- Ukladá sa len e-mail, výber obchodov a značiek a čas a verzia súhlasu. IP adresy sa neukladajú.
-- Súhlas je dvojstupňový (double opt-in) a vyžaduje sa vek **18+**. Letáky pri energetických nápojoch uvádzajú „Nie je vhodné pre deti a mládež do 18 rokov“.
-- Nepotvrdené registrácie sa mažú po 48 hodinách. Odhlásenie údaje okamžite vymaže.
-- V každom e-maile je odkaz na odhlásenie a hlavička `List-Unsubscribe` s odhlásením jedným klikom (vyžadujú ju Gmail a Yahoo).
-- Stránka má Zásady ochrany súkromia (`/sukromie`) a Podmienky (`/podmienky`).
-- Bez cookies, analytiky a Google Fonts, takže netreba cookie lištu.
-- Formulár vždy vráti rovnakú odpoveď, takže sa nedá zistiť, kto je prihlásený.
-
-**Ochranné známky a autorské práva**
-- Názvy značiek a obchodov sa používajú len na pomenovanie produktov, bez log, grafiky a obrázkov z letákov.
-- Upozornenie „nie sme prepojení“ je na každej stránke aj v e-mailoch.
-- Ceny sú označené ako orientačné a automaticky zisťované.
-- V podmienkach je kontakt pre vlastníkov práv: ak niekto nesúhlasí, zastavíš to.
-- Názov stránky ani domény nemá obsahovať názov značky.
-
-**Bezpečnosť**
-- Prísna Content-Security-Policy, stránka nemá žiadny JavaScript a všetky výstupy sú escapované.
-- Bezpečnostné hlavičky cez Helmet a obmedzenie počtu pokusov.
-- Honeypot proti botom a náhodné 256-bitové tokeny. Potvrdenie aj odhlásenie ide cez POST tlačidlo.
-- Admin za heslom s ochranou proti CSRF a parametrizované SQL dotazy.
-- PDF sa spracúva bez spúšťania kódu (`isEvalSupported: false`) a s limitom veľkosti.
-
-## Pred spustením nezabudni
-
-- [ ] V `.env` vyplniť `OPERATOR_NAME` a `CONTACT_EMAIL` (v produkcii sú povinné).
-- [ ] Ak budeš na stránke zarábať (reklamy, affiliate), budeš potrebovať živnosť a doplniť údaje podľa zákona o elektronickom obchode.
-- [ ] Ak zmeníš text súhlasu, zvýš `CONSENT_VERSION` v [src/config.js](src/config.js).
-- [ ] Toto nie je právne poradenstvo. Automatické čítanie letákov je síce slušné a bez obchádzania ochrany, ale obchody ho môžu zakázať vo svojich podmienkach. Ak by sa ozvali, kontrolu daného obchodu vypni.
+- **GDPR:**
+  - Zoznam odberateľov je **len v Brevo** (EÚ), nie na stránke ani v repozitári.
+  - Súhlas je dvojstupňový (double opt-in) a vyžaduje sa vek 18+, keďže letáky pri energeťákoch uvádzajú „Nie je vhodné pre deti a mládež do 18 rokov“.
+  - Odhlásenie jedným klikom je v každom e-maile. Brevo pridáva aj hlavičku `List-Unsubscribe`.
+  - Zásady ochrany súkromia uvádzajú Brevo aj GitHub Pages ako sprostredkovateľov.
+- **Stránka:** bez cookies, analytiky a JavaScriptu. Má prísnu Content-Security-Policy a formulár smie odosielať len na Brevo.
+- **Ochranné známky:** názvy sa používajú len na pomenovanie produktov, bez log a grafiky. Na každej stránke aj v e-mailoch je upozornenie „nie sme prepojení“.
+- **Tajomstvá:** jediné je `BREVO_API_KEY` v GitHub Secrets, v kóde nie je nič.
+- Toto nie je právne poradenstvo. Obchody môžu automatické čítanie zakázať vo svojich podmienkach. Ak by sa ozvali, kontrolu daného obchodu vypni.

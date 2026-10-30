@@ -1,0 +1,19 @@
+{
+  "siteName": "Akčná plechovka",
+  "baseUrl": "https://matusep.me",
+  "operatorName": "",
+  "contactEmail": "kontakt@matusep.me",
+  "sender": {
+    "name": "Akčná plechovka",
+    "email": "upozornenia@matusep.me"
+  },
+  "brevo": {
+    "formUrl": "",
+    "lists": {
+      "monster": 0,
+      "redbull": 0,
+      "hell": 0
+    }
+  },
+  "notify": true
+}
