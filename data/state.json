@@ -13,5 +13,12 @@
     },
     "removed": 0,
     "notify": "nič nové"
+  },
+  "welcomeLists": {
+    "redbull": 6
+  },
+  "lastWelcome": {
+    "at": "2026-10-30T11:13:10.626Z",
+    "result": "Monster: 4 nových, uvítanie s akciami 0; Red Bull: 4 nových, uvítanie s akciami 2; Hell: 4 nových, uvítanie s akciami 0"
   }
 }
