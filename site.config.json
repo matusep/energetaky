@@ -1,18 +1,18 @@
 {
   "siteName": "Akčná plechovka",
   "baseUrl": "https://energetaky.matusep.me",
-  "operatorName": "",
+  "operatorName": "Matúš Šepík",
   "contactEmail": "kontakt@matusep.me",
   "sender": {
     "name": "Akčná plechovka",
     "email": "upozornenia@matusep.me"
   },
   "brevo": {
-    "formUrl": "",
+    "formUrl": "https://a7889689.sibforms.com/serve/MUIFAGyZBnEDYjIJNE1Omhxg6J0n_Rs6qvrqZj9tm-5P8M7FeZaXqqR9HTPiw5P7ahRrbZApLVf20hQHKycCr-TgGpLtLoGH91r-iSDEpzbsbFkqIIAlUXHnWL_tSozwWcPQvbHi2tw8A-hrLxpCjv2sMRT-hJbLLHsKz4M1OwM7w7NxyAXUZT6l5Q-PAYqfiCitvj4TofwTXxFSbw==",
     "lists": {
-      "monster": 0,
-      "redbull": 0,
-      "hell": 0
+      "monster": 3,
+      "redbull": 4,
+      "hell": 5
     }
   },
   "notify": true

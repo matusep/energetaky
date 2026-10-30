@@ -170,7 +170,7 @@ function signupCard() {
         <span>Mám aspoň 18 rokov.</span>
       </label>
       <button class="btn" type="submit">Prihlásiť odber</button>
-      <p class="form__hint">Pošleme ti potvrdzovací e-mail. Odber začne až po kliknutí na odkaz.</p>
+      <p class="form__hint">Pošleme ti potvrdzovací e-mail. Odber začne až po kliknutí na odkaz. E-mailovú adresu za nás uchováva a e-maily odosiela služba Brevo.</p>
     </form>
   </div>`;
 }
