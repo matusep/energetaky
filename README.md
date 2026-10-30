@@ -22,7 +22,7 @@ Po pushnutí kódu alebo zmene `data/hidden.json` sa stránka len znova zostaví
 
 ### Noví odberatelia
 
-Kampaň o akcii odchádza len raz. Kto sa prihlási neskôr, dostane do hodiny **uvítací e-mail s akciami, ktoré už dostali ostatní** ([.github/workflows/welcome.yml](.github/workflows/welcome.yml), [src/welcome.js](src/welcome.js)). Program v Brevo zapíše kontaktu atribút , aby uvítanie nedostal dvakrát, a na rozoslanie použije pomocný zoznam „Uvítanie – značka (automaticky)“. Ten nemaž. API kľúč na to potrebuje oprávnenie **Contacts = All**.
+Kampaň o akcii odchádza len raz. Kto sa prihlási neskôr, dostane do hodiny **uvítací e-mail s akciami, ktoré už dostali ostatní** ([.github/workflows/welcome.yml](.github/workflows/welcome.yml), [src/welcome.js](src/welcome.js)). Program v Brevo zapíše kontaktu atribút `UVITANE`, aby uvítanie nedostal dvakrát, a na rozoslanie použije pomocný zoznam „Uvítanie – značka (automaticky)“. Ten nemaž. API kľúč na to potrebuje oprávnenie **Contacts = All**.
 
 ### Zle prečítaná akcia
 
