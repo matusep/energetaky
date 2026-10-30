@@ -175,6 +175,24 @@ function signupCard() {
   </div>`;
 }
 
+/** Sem presmeruje Brevo po potvrdení odberu. Akcie, ktoré už boli oznámené, ukážeme hneď tu – e-mailom príde až ďalšia. */
+export function subscribedPage({ deals }) {
+  return layout({
+    title: 'Odber je aktívny',
+    noindex: true,
+    body: `<section class="section"><div class="wrap narrow"><div class="card message message--ok">
+      <h1>Odber je aktívny ⚡</h1>
+      <p>Ďakujeme! E-mail ti pošleme vždy, keď v letákoch nájdeme novú akciu na tvoj energeťák. Odhlásiť sa môžeš v každom e-maile.</p>
+    </div></div></section>
+    ${
+      deals.length
+        ? `<section class="section section--tight"><div class="wrap"><h2>Čo je v akcii práve teraz</h2><div class="deals">${deals.map(dealCard).join('')}</div></div></section>`
+        : ''
+    }
+    <section class="section section--tight"><div class="wrap narrow message"><a class="btn btn--ghost" href="/">Späť na úvod</a></div></section>`,
+  });
+}
+
 export function messagePage({ title, text, tone = 'info' }) {
   return layout({
     title,

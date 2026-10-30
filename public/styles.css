@@ -134,6 +134,7 @@ input:focus, select:focus { outline: none; border-color: var(--accent); box-shad
 
 /* --- Sekcie --- */
 .section { padding: 64px 0; }
+.section--tight { padding: 0 0 48px; }
 .section--alt { background: var(--bg-alt); border-block: 1px solid var(--card-border); }
 .section h2 { font-size: 1.8rem; margin: 0 0 24px; letter-spacing: -.01em; }
 

@@ -31,7 +31,7 @@ export function build() {
   write('podmienky/index.html', pages.termsPage());
   // Na tieto stránky presmeruje Brevo (nastavuje sa vo formulári v Brevo).
   write('skontroluj-email/index.html', pages.messagePage({ title: 'Skontroluj si e-mail', text: 'Poslali sme ti e-mail s odkazom na potvrdenie odberu. Odber začne až po kliknutí naň. Ak e-mail nevidíš, pozri aj priečinok Spam.', tone: 'ok' }));
-  write('odber-aktivny/index.html', pages.messagePage({ title: 'Odber je aktívny ⚡', text: 'Ďakujeme! Keď bude tvoj energeťák v akcii, pošleme ti e-mail. Odhlásiť sa môžeš v každom e-maile.', tone: 'ok' }));
+  write('odber-aktivny/index.html', pages.subscribedPage({ deals }));
   write('odhlasene/index.html', pages.messagePage({ title: 'Odhlásené', text: 'Už ti nepošleme žiadny e-mail. Ak si to rozmyslíš, môžeš sa kedykoľvek prihlásiť znova.', tone: 'ok' }));
   write('404.html', pages.messagePage({ title: 'Stránka neexistuje', text: 'Táto stránka tu nie je. Možno hľadáš aktuálne akcie na úvodnej stránke.' }));
   write('CNAME', `${new URL(config.baseUrl).host}\n`);

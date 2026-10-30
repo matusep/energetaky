@@ -84,6 +84,8 @@ export async function sendDealCampaigns(deals, { dryRun = false } = {}) {
         name: `${brandName} ${new Date().toISOString().slice(0, 16)}`,
         subject,
         sender: config.sender,
+        // Inak by Brevo dalo ako adresu na odpoveď súkromný e-mail z účtu.
+        replyTo: config.contactEmail,
         htmlContent: campaignHtml(brandName, brandDeals),
         recipients: { listIds: [listId] },
       });
