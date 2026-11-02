@@ -6,6 +6,7 @@ import { today } from './format.js';
 import * as store from './store.js';
 import * as pages from './pages.js';
 import { imageDir } from './images.js';
+import { isSyrup } from './brands.js';
 
 const root = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const dist = path.join(root, 'dist');
@@ -13,10 +14,13 @@ const dist = path.join(root, 'dist');
 /** Vygeneruje statickú stránku do priečinka dist/ (ten nasadí GitHub Pages). */
 export function build() {
   const hidden = store.loadHidden();
-  const deals = store
+  const all = store
     .loadDeals()
     .filter((d) => !hidden.has(d.id) && d.validTo >= today())
     .sort((a, b) => a.validFrom.localeCompare(b.validFrom) || a.priceCents - b.priceCents);
+  // Energeťáky sú na úvodnej stránke, sirupy na /samo.
+  const deals = all.filter((d) => !isSyrup(d));
+  const syrups = all.filter(isSyrup);
   const { lastCheck } = store.loadState();
 
   fs.rmSync(dist, { recursive: true, force: true });
@@ -29,6 +33,7 @@ export function build() {
   };
 
   write('index.html', pages.homePage({ deals, lastCheck: lastCheck?.at }));
+  write('samo/index.html', pages.samoPage({ deals: syrups, lastCheck: lastCheck?.at }));
   write('sukromie/index.html', pages.privacyPage());
   write('podmienky/index.html', pages.termsPage());
   // Na tieto stránky presmeruje Brevo (nastavuje sa vo formulári v Brevo).
@@ -38,7 +43,7 @@ export function build() {
   write('404.html', pages.messagePage({ title: 'Stránka neexistuje', text: 'Táto stránka tu nie je. Možno hľadáš aktuálne akcie na úvodnej stránke.' }));
   write('CNAME', `${new URL(config.baseUrl).host}\n`);
 
-  console.log(`Stránka zostavená do dist/ – počet akcií: ${deals.length}.`);
+  console.log(`Stránka zostavená do dist/ – energeťáky: ${deals.length}, sirupy: ${syrups.length}.`);
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) build();

@@ -1,5 +1,5 @@
 import { config, STORES } from './config.js';
-import { BRANDS } from './brands.js';
+import { BRANDS, SYRUP, productName } from './brands.js';
 import { escapeHtml as e, formatPrice, formatDate, formatDateTime, shortDate, discountPercent, storeLocative, today } from './format.js';
 
 const HEALTH_NOTE = 'Vysoký obsah kofeínu. Nevhodné pre deti, tehotné a dojčiace ženy.';
@@ -33,9 +33,9 @@ const checkedAt = (iso) => `<time datetime="${e(iso)}" data-relative>${e(formatD
 
 const ARROW = '<svg class="arrow" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 
-const DESCRIPTION = 'Automaticky sledujeme letáky Kauflandu, Billy a Lidla a pošleme ti e-mail, keď sú Monster, Red Bull alebo Hell v akcii.';
+const DESCRIPTION = 'Automaticky sledujeme letáky Kauflandu, Billy, Lidla a COOP Jednoty a pošleme ti e-mail, keď sú Monster, Red Bull alebo Hell v akcii.';
 
-export function layout({ title, body, noindex = false, home = false, lastCheck = null, share = DESCRIPTION }) {
+export function layout({ title, body, noindex = false, home = false, samo = false, lastCheck = null, share = DESCRIPTION, path = '/' }) {
   const fullTitle = title ? `${title} · ${config.siteName}` : `${config.siteName} – je tvoj energeťák v akcii?`;
   // GitHub Pages nedovoľuje nastaviť hlavičky, preto je bezpečnostná politika v <meta>. Skript je len vlastný (animácie), žiadne cudzie.
   const csp = `default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; form-action 'self' ${formOrigin()}; base-uri 'none'`;
@@ -53,9 +53,9 @@ export function layout({ title, body, noindex = false, home = false, lastCheck =
   <meta property="og:type" content="website">
   <meta property="og:locale" content="sk_SK">
   <meta property="og:site_name" content="${e(config.siteName)}">
-  <meta property="og:title" content="${e(home ? 'Je tvoj energeťák v akcii?' : fullTitle)}">
+  <meta property="og:title" content="${e(samo ? 'Je tvoj sirup v akcii?' : home ? 'Je tvoj energeťák v akcii?' : fullTitle)}">
   <meta property="og:description" content="${e(share)}">
-  <meta property="og:url" content="${e(config.baseUrl)}/">
+  <meta property="og:url" content="${e(config.baseUrl)}${e(path)}">
   <meta property="og:image" content="${e(config.baseUrl)}/og.jpg">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
@@ -68,9 +68,9 @@ export function layout({ title, body, noindex = false, home = false, lastCheck =
   <script src="/app.js"></script>
 </head>
 <body>
-  ${home ? '' : topbar()}
+  ${home || samo ? '' : topbar()}
   <main>${body}</main>
-  ${footer(lastCheck)}
+  ${footer(lastCheck, samo)}
 </body>
 </html>`;
 }
@@ -83,16 +83,20 @@ function topbar() {
   </header>`;
 }
 
-function footer(lastCheck) {
+function footer(lastCheck, samo = false) {
   const credits = PHOTO_CREDITS.map((p) => `<a href="${p.page}">„${e(p.title)}“</a>`).join(', ');
   return `<footer class="footer">
     <div class="footer__top">
       <a class="footer__name" href="/">${e(config.siteName)}</a>
-      <a class="btn" href="/#odber">Chcem upozornenie ${ARROW}</a>
+      <div class="footer__actions">
+        ${samo
+          ? `<a class="btn" href="/">Energeťáky v akcii ${ARROW}</a>`
+          : `<a class="btn" href="/#odber">Chcem upozornenie ${ARROW}</a><a class="btn btn--ghost" href="/samo/">Zľavy pre Samka ${ARROW}</a>`}
+      </div>
     </div>
     <div class="footer__stores">
       <span>Sledujeme letáky</span>
-      ${Object.entries(STORES).map(([key, name]) => `<img src="/img/stores/${key}.svg" alt="${e(name)}" height="40" loading="lazy">`).join('')}
+      ${Object.entries(STORES).map(([key, name]) => `<img src="/img/stores/${key}.${key === 'coop' ? 'png' : 'svg'}" alt="${e(name)}" height="40" loading="lazy">`).join('')}
     </div>
     <div class="footer__grid">
       <nav class="footer__links" aria-label="Odkazy v pätičke">
@@ -103,7 +107,7 @@ function footer(lastCheck) {
         ${config.contactEmail ? `<a href="mailto:${e(config.contactEmail)}">${e(config.contactEmail)}</a>` : ''}
       </nav>
       <div class="footer__legal">
-        <p>Nezávislý neoficiálny projekt. Nie sme prepojení so spoločnosťami Monster Energy Company, Red Bull GmbH, HELL ENERGY Magyarország Kft., Kaufland, BILLA ani Lidl, nie sme nimi sponzorovaní ani schválení. Uvedené názvy sú ochranné známky ich vlastníkov a používame ich len na označenie produktov a obchodov.</p>
+        <p>Nezávislý neoficiálny projekt. Nie sme prepojení so spoločnosťami Monster Energy Company, Red Bull GmbH, HELL ENERGY Magyarország Kft., Kaufland, BILLA, Lidl ani COOP Jednota, nie sme nimi sponzorovaní ani schválení. Uvedené názvy sú ochranné známky ich vlastníkov a používame ich len na označenie produktov a obchodov.</p>
         <p>Ceny zisťujeme automaticky z verejných letákov a môžu obsahovať chyby alebo sa líšiť podľa predajne. Záväzné sú vždy údaje v letáku a na predajni obchodu. ${HEALTH_NOTE}</p>
         <p>Letáky kontrolujeme dvakrát denne${lastCheck ? `, naposledy ${checkedAt(lastCheck)}` : ''}. Bez cookies a sledovania.</p>
         <p class="footer__credits">Fotky produktov pochádzajú z verejnej ponuky obchodov a výrobcov. Stena plechoviek v úvode: ${credits}, autor Oto Zapletal, <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.sk">CC BY-SA 4.0</a>, Wikimedia Commons, orezané. Písmo Schibsted Grotesk, SIL Open Font License.</p>
@@ -134,6 +138,9 @@ function canSize(product) {
 
 const DAY = 86_400_000;
 
+/** „Bille, Kauflande a COOP Jednote“ */
+const listJoin = (items) => (items.length < 2 ? items.join('') : `${items.slice(0, -1).join(', ')} a ${items.at(-1)}`);
+
 /** Text do pásu obchodu: „Končí zajtra · do 3. 11.“, „Začína 4. 11.“ */
 function when(deal) {
   const now = Date.parse(today());
@@ -148,8 +155,10 @@ function when(deal) {
   return `Ešte ${days} ${days < 5 ? 'dni' : 'dní'} · ${until}`;
 }
 
-function can(brand, size, alt = `Plechovka ${BRANDS[brand]?.name ?? ''}`) {
-  return `<img class="can ${size}" src="/img/cans/${e(brand)}.webp" alt="${e(alt)}" width="350" height="900" loading="lazy" decoding="async">`;
+/** Ilustračný obrázok: plechovka značky, pri sirupe nakreslená fľaša. */
+function can(brand, size) {
+  const [file, alt] = brand === SYRUP ? ['sirup.svg', 'Ilustračný obrázok: fľaša sirupu'] : [`${brand}.webp`, `Plechovka ${BRANDS[brand]?.name ?? ''}`];
+  return `<img class="can ${size}" src="/img/cans/${e(file)}" alt="${e(alt)}" width="350" height="900" loading="lazy" decoding="async">`;
 }
 
 function dealCard(deal, i) {
@@ -157,7 +166,7 @@ function dealCard(deal, i) {
   const size = canSize(deal.product);
   const picture = deal.image
     ? `<img class="can can--photo ${size}" src="/img/deals/${e(deal.image)}" alt="${e(deal.product)}" loading="lazy" decoding="async">`
-    : can(deal.brand, size, `Ilustračná fotka: plechovka ${BRANDS[deal.brand]?.name ?? ''}`);
+    : can(deal.brand, size);
   return `
     <article class="deal deal--${e(deal.store)} reveal" data-delay="${i}">
       <header class="deal__where">
@@ -168,7 +177,7 @@ function dealCard(deal, i) {
         ${pct ? `<span class="deal__badge">−${pct} %</span>` : ''}
         ${picture}
         <span class="deal__floor" aria-hidden="true"></span>
-        ${deal.image ? '' : '<span class="deal__illus">Ilustračná fotka</span>'}
+        ${deal.image ? '' : '<span class="deal__illus">Ilustračný obrázok</span>'}
       </div>
       <div class="deal__body">
         <h3 class="deal__name">${e(deal.product)}</h3>
@@ -182,8 +191,8 @@ function dealCard(deal, i) {
     </article>`;
 }
 
-/** Keď nič nie je v akcii, ukážeme tri sledované značky. */
-function brandCard([key, brand], i) {
+/** Keď nič nie je v akcii, ukážeme, čo sledujeme: tri značky energeťákov alebo sirupy. */
+function brandCard([key, name], i) {
   return `
     <article class="deal deal--idle reveal" data-delay="${i}">
       <div class="deal__stage" data-tilt>
@@ -191,31 +200,33 @@ function brandCard([key, brand], i) {
         <span class="deal__floor" aria-hidden="true"></span>
       </div>
       <div class="deal__body">
-        <h3 class="deal__name">${e(brand.name)}</h3>
+        <h3 class="deal__name">${e(name)}</h3>
         <p class="deal__status"><span class="dot"></span>Sledujeme, teraz nie je v akcii</p>
       </div>
     </article>`;
 }
 
-function deals(list) {
+const ENERGY_IDLE = Object.entries(BRANDS).map(([key, b]) => [key, b.name]);
+
+function deals(list, idle = ENERGY_IDLE) {
   const cls = list.length === 1 ? ' deals--one' : list.length === 2 ? ' deals--two' : '';
-  return `<div class="deals${cls}">${list.length ? list.map(dealCard).join('') : Object.entries(BRANDS).map(brandCard).join('')}</div>`;
+  return `<div class="deals${cls}">${list.length ? list.map(dealCard).join('') : idle.map(brandCard).join('')}</div>`;
 }
 
 /** Odpoveď na otázku z nadpisu: [„Áno.“, „Red Bull za 1,00 € v Bille, do 3. 11. 2026.“] */
-function answerParts(list) {
+function answerParts(list, nothing = 'Napíšeme ti, keď bude.') {
   const now = today();
   const live = list.filter((d) => d.validFrom <= now);
   const cheapest = live.reduce((min, d) => (!min || d.priceCents < min.priceCents ? d : min), null);
   if (cheapest) {
-    return ['Áno.', `${BRANDS[cheapest.brand]?.name} za ${formatPrice(cheapest.priceCents)} v ${storeLocative(cheapest.store)}, do ${formatDate(cheapest.validTo)}.`];
+    return ['Áno.', `${productName(cheapest)} za ${formatPrice(cheapest.priceCents)} v ${storeLocative(cheapest.store)}, do ${formatDate(cheapest.validTo)}.`];
   }
-  if (list.length) return ['Čoskoro.', `${BRANDS[list[0].brand]?.name} od ${formatDate(list[0].validFrom)} v ${storeLocative(list[0].store)}.`];
-  return ['Teraz nie.', 'Napíšeme ti, keď bude.'];
+  if (list.length) return ['Čoskoro.', `${productName(list[0])} od ${formatDate(list[0].validFrom)} v ${storeLocative(list[0].store)}.`];
+  return ['Teraz nie.', nothing];
 }
 
-function answer(list) {
-  const [lead, rest] = answerParts(list);
+function answer(list, nothing) {
+  const [lead, rest] = answerParts(list, nothing);
   return `<p class="panel__answer"><strong>${e(lead)}</strong> ${e(rest)}</p>`;
 }
 
@@ -240,13 +251,13 @@ function wall() {
 }
 
 export function homePage({ deals: list, lastCheck }) {
-  const stores = [...new Set(list.map((d) => storeLocative(d.store)))].join(' a ');
+  const stores = listJoin([...new Set(list.map((d) => storeLocative(d.store)))]);
   const count = list.length === 1 ? '1 akcia' : list.length < 5 ? `${list.length} akcie` : `${list.length} akcií`;
 
   return layout({
     home: true,
     lastCheck,
-    share: `${answerParts(list).join(' ')} Upozorníme ťa e-mailom, keď je Monster, Red Bull alebo Hell v akcii v Kauflande, Bille alebo Lidli.`,
+    share: `${answerParts(list).join(' ')} Upozorníme ťa e-mailom, keď je Monster, Red Bull alebo Hell v akcii v Kauflande, Bille, Lidli alebo COOP Jednote.`,
     body: `
   <section class="hero">
     ${wall()}
@@ -278,9 +289,45 @@ export function homePage({ deals: list, lastCheck }) {
       ${faqItem('Koľko e-mailov mi príde?', 'Iba keď nájdeme novú akciu na značky, ktoré si si vybral(a). Zvyčajne nanajvýš pár správ mesačne.', true)}
       ${faqItem('Čo robíte s mojím e-mailom?', 'Používame ho len na tieto upozornenia. Nikomu ho nepredávame. Podrobnosti sú v <a href="/sukromie/">zásadách ochrany súkromia</a>.')}
       ${faqItem('Ako sa odhlásim?', 'V každom e-maile je odkaz „Odhlásiť sa“. Jedným klikom sa odhlásiš a už ti nič nepošleme.')}
-      ${faqItem('Odkiaľ beriete ceny?', 'Dvakrát denne automaticky prečítame verejne dostupné letáky a ponuky na stránkach Kauflandu, Billy a Lidla. Program sa môže pomýliť, preto pri každej akcii nájdeš odkaz na overenie v letáku. Záväzná je vždy cena na predajni.')}
+      ${faqItem('Odkiaľ beriete ceny?', 'Dvakrát denne automaticky prečítame verejne dostupné letáky a ponuky na stránkach Kauflandu, Billy, Lidla a COOP Jednoty. Program sa môže pomýliť, preto pri každej akcii nájdeš odkaz na overenie v letáku. Záväzná je vždy cena na predajni.')}
       ${faqItem('Ste oficiálna stránka niektorej značky alebo obchodu?', 'Nie. Sme nezávislý fanúšikovský projekt a so žiadnou z týchto spoločností nie sme prepojení.')}
     </div>
+  </section>`,
+  });
+}
+
+// Na /samo sa e-maily neposielajú, preto bez sľubu „napíšeme ti“.
+const SAMO_NOTHING = 'Letáky kontrolujeme dvakrát denne, pozri sa sem znova.';
+
+/** /samo – zľavy na sirupy pre Samka. Rovnaký úvod ako hlavná stránka, bez odberu e-mailom. */
+export function samoPage({ deals: list, lastCheck }) {
+  const stores = listJoin([...new Set(list.map((d) => storeLocative(d.store)))]);
+  const count = list.length === 1 ? '1 sirup' : list.length < 5 ? `${list.length} sirupy` : `${list.length} sirupov`;
+
+  return layout({
+    title: 'Zľavy pre Samka',
+    samo: true,
+    lastCheck,
+    path: '/samo/',
+    share: `${answerParts(list, SAMO_NOTHING).join(' ')} Sirupy v akcii v Kauflande, Bille, Lidli a COOP Jednote.`,
+    body: `
+  <section class="hero">
+    ${wall()}
+    <div class="panel">
+      <div class="panel__text">
+        <h1>Je tvoj sirup v akcii?</h1>
+        ${answer(list, SAMO_NOTHING)}
+      </div>
+      <a class="btn btn--paper" href="#akcie">Pozri akcie</a>
+    </div>
+  </section>
+
+  <section class="section" id="akcie">
+    <header class="section__head">
+      <h2 data-split>Sirupy v akcii</h2>
+      <p class="live reveal"><span class="dot"></span><span>${list.length ? `${count} v ${e(stores)}` : 'Teraz nie je v akcii žiadny sirup'}${lastCheck ? ` · skontrolované ${checkedAt(lastCheck)}` : ''}</span></p>
+    </header>
+    ${deals(list, [[SYRUP, 'Sirupy']])}
   </section>`,
   });
 }
@@ -395,7 +442,7 @@ export function privacyPage() {
   <p>Samotná stránka nepoužíva cookies, analytické ani reklamné nástroje a nevytvárame žiadne profily.</p>
 
   <h2>3. Účel a právny základ</h2>
-  <p>Údaje spracúvame výlučne na zasielanie e-mailových upozornení na akcie energetických nápojov v obchodoch Kaufland, BILLA a Lidl. Právnym základom je tvoj súhlas podľa čl. 6 ods. 1 písm. a) nariadenia GDPR a § 13 ods. 1 písm. a) zákona č. 18/2018 Z. z. o ochrane osobných údajov. Zasielanie e-mailov na základe súhlasu je v súlade aj s § 116 zákona č. 452/2021 Z. z. o elektronických komunikáciách.</p>
+  <p>Údaje spracúvame výlučne na zasielanie e-mailových upozornení na akcie energetických nápojov v obchodoch Kaufland, BILLA, Lidl a COOP Jednota. Právnym základom je tvoj súhlas podľa čl. 6 ods. 1 písm. a) nariadenia GDPR a § 13 ods. 1 písm. a) zákona č. 18/2018 Z. z. o ochrane osobných údajov. Zasielanie e-mailov na základe súhlasu je v súlade aj s § 116 zákona č. 452/2021 Z. z. o elektronických komunikáciách.</p>
   <p>Súhlas udeľuješ dvojstupňovo: zaškrtnutím políčka a potvrdením odkazu v e-maile (double opt-in). Služba je určená len osobám starším ako 18 rokov.</p>
 
   <h2>4. Kto ďalší má k údajom prístup</h2>
@@ -432,11 +479,11 @@ export function termsPage() {
   <p class="muted">Platné od 2. 11. 2026</p>
 
   <h2>1. O službe</h2>
-  <p>${e(config.siteName)} je bezplatný, nekomerčný a nezávislý projekt, ktorý informuje o akciách na energetické nápoje Monster, Red Bull a Hell v obchodoch Kaufland, BILLA a Lidl na Slovensku.</p>
+  <p>${e(config.siteName)} je bezplatný, nekomerčný a nezávislý projekt, ktorý informuje o akciách na energetické nápoje Monster, Red Bull a Hell a na sirupy v obchodoch Kaufland, BILLA, Lidl a COOP Jednota na Slovensku.</p>
 
   <h2>2. Nie sme oficiálna stránka</h2>
-  <p>Služba nie je prepojená so spoločnosťami Monster Energy Company, Red Bull GmbH, HELL ENERGY Magyarország Kft., Kaufland Slovenská republika v.o.s., BILLA s.r.o. ani Lidl Slovenská republika, v.o.s., nie je nimi sponzorovaná, podporovaná ani schválená. Uvedené názvy sú ochranné známky ich vlastníkov. Používame ich výlučne na pomenovanie produktov a obchodov, o ktorých informujeme, a ich logá ani grafiku nepoužívame na označenie tejto služby.</p>
-  <p>Pri akcii zobrazujeme fotografiu produktu, aby bolo jasné, o ktorý výrobok ide: pri Kauflande a Lidli fotografiu z ich verejnej ponuky, inak ilustračnú fotografiu bežnej plechovky danej značky z verejnej ponuky obchodu alebo výrobcu, označenú ako ilustračná. Fotografie plechoviek v úvode stránky sú z Wikimedia Commons pod licenciou CC BY-SA 4.0 s uvedením autora v pätičke. Z letákov inak uvádzame len stručné faktické údaje (názov produktu, cenu, platnosť) s odkazom na zdroj.</p>
+  <p>Služba nie je prepojená so spoločnosťami Monster Energy Company, Red Bull GmbH, HELL ENERGY Magyarország Kft., Kaufland Slovenská republika v.o.s., BILLA s.r.o., Lidl Slovenská republika, v.o.s. ani COOP Jednota Slovensko, spotrebné družstvo, nie je nimi sponzorovaná, podporovaná ani schválená. Uvedené názvy sú ochranné známky ich vlastníkov. Používame ich výlučne na pomenovanie produktov a obchodov, o ktorých informujeme, a ich logá ani grafiku nepoužívame na označenie tejto služby.</p>
+  <p>Pri akcii zobrazujeme fotografiu produktu, aby bolo jasné, o ktorý výrobok ide: pri Kauflande a Lidli fotografiu z ich verejnej ponuky, inak ilustračný obrázok (fotografiu bežnej plechovky danej značky z verejnej ponuky obchodu alebo výrobcu, pri sirupoch nakreslenú fľašu), označený ako ilustračný. Fotografie plechoviek v úvode stránky sú z Wikimedia Commons pod licenciou CC BY-SA 4.0 s uvedením autora v pätičke. Z letákov inak uvádzame len stručné faktické údaje (názov produktu, cenu, platnosť) s odkazom na zdroj.</p>
 
   <h2>3. Ako zisťujeme akcie a ich presnosť</h2>
   <p>Údaje zisťuje program automaticky z verejne dostupných stránok a letákov obchodov, dvakrát denne, v súlade so súbormi robots.txt a bez obchádzania akýchkoľvek technických opatrení. Automatické čítanie letákov sa môže pomýliť, akcia sa môže líšiť podľa predajne alebo môže byť tovar vypredaný. Záväzné sú vždy informácie obchodu (leták, cenovka, pokladnica). Za rozhodnutia urobené na základe údajov zo služby nezodpovedáme v rozsahu, v akom to právne predpisy dovoľujú.</p>

@@ -1,6 +1,6 @@
 import crypto from 'node:crypto';
 import { getDocument } from 'pdfjs-dist/legacy/build/pdf.mjs';
-import { detectBrand } from '../brands.js';
+import { detectProduct, SYRUP } from '../brands.js';
 import { fetchText, fetchPolite } from './http.js';
 
 export const BILLA_PAGE = 'https://www.billa.sk/letaky-a-akcie/aktualny-letak';
@@ -57,7 +57,7 @@ export async function parseBillaPdf(data, { validFrom, validTo, pdfKey }) {
 
     const usedDiscounts = new Set();
     for (const anchor of items) {
-      const brand = detectBrand(anchor.str);
+      const brand = detectProduct(anchor.str);
       if (!brand) continue;
 
       // Oblasť dlaždice: pod názvom produktu, mierne doľava aj doprava.
@@ -96,16 +96,30 @@ export async function parseBillaPdf(data, { validFrom, validTo, pdfKey }) {
         if (!estimate || Math.abs(best.cents - estimate) <= estimate * 0.1) price = best.cents;
       }
       if (!price && estimate) price = estimate;
+
+      // Sirup bez zľavy („NAŠA CENA“) overíme jednotkovou cenou: „1 l = 3,786 €“ × „0,7 l“ musí dať cenu (±3 %).
+      if (brand === SYRUP && !estimate) {
+        const unit = region.map((o) => o.str.match(/1\s*l\s*=\s*(\d+,\d+)/)).find(Boolean);
+        const vol = region.map((o) => o.str.match(/^(\d+(?:,\d+)?)\s*l$/)).find(Boolean);
+        const expected = unit && vol ? Number(unit[1].replace(',', '.')) * Number(vol[1].replace(',', '.')) * 100 : null;
+        const match = expected && pairs.find((pair) => Math.abs(pair.cents - expected) <= Math.max(3, expected * 0.03));
+        if (!match) continue;
+        price = match.cents;
+      }
       if (!price || price > 1000 || (regular && regular <= price)) continue; // nič rozumné – radšej nič
 
       if (discount) usedDiscounts.add(discount);
 
       // Názov: riadky tesne pod značkou, bez čísel a reklamných nápisov veľkými písmenami („XXL PONUKA“).
-      const nameParts = [anchor.str];
+      // Pri sirupe je značka („Jupí Extra“) riadok nad slovom „sirup“.
+      const above = brand === SYRUP && items.find((o) => o.y > anchor.y && o.y <= anchor.y + 14 && Math.abs(o.x - anchor.x) < 40 && o.str !== o.str.toUpperCase());
+      const nameParts = above ? [above.str, anchor.str] : [anchor.str];
       for (const o of items) {
         const isPromo = /^[-\d%]/.test(o.str) || o.str === o.str.toUpperCase();
         if (o !== anchor && !isPromo && o.y < anchor.y && o.y >= anchor.y - 30 && Math.abs(o.x - anchor.x) < 40) nameParts.push(o.str.replace(/,$/, ''));
       }
+      const size = items.find((o) => /^\d+(?:,\d+)?\s*(?:ml|l)$/.test(o.str) && o.y < anchor.y && o.y >= anchor.y - 30 && Math.abs(o.x - anchor.x) < 40);
+      if (size && !/\d\s*(ml|l)\b/.test(nameParts.join(' '))) nameParts.push(size.str);
 
       const regionText = region.map((o) => o.str).join(' ');
       const notes = [];

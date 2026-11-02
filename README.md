@@ -1,6 +1,6 @@
 # Akčná plechovka ⚡
 
-Statická stránka, ktorá 2× denne automaticky prečíta letáky Kauflandu, Billy a Lidla a pošle e-mail odberateľom, keď sú **Monster, Red Bull alebo Hell** v akcii. Celé to beží zadarmo, bez servera:
+Statická stránka, ktorá 2× denne automaticky prečíta letáky Kauflandu, Billy, Lidla a COOP Jednoty a pošle e-mail odberateľom, keď sú **Monster, Red Bull alebo Hell** v akcii. Na [/samo](https://energetaky.matusep.me/samo/) („Zľavy pre Samka“) ukazuje aj **sirupy** v akcii, tie len na stránke, bez e-mailov. Celé to beží zadarmo, bez servera:
 
 | Čo | Kde |
 |---|---|
@@ -15,6 +15,9 @@ Statická stránka, ktorá 2× denne automaticky prečíta letáky Kauflandu, Bi
    - **Kaufland:** prečíta [prehľad akciových výrobkov](https://predajne.kaufland.sk/aktualna-ponuka/prehlad.html) za aktuálny aj budúci týždeň.
    - **BILLA:** zo stránky [aktuálny leták](https://www.billa.sk/letaky-a-akcie/aktualny-letak) stiahne PDF (len do pamäte, na disk sa neukladá) a prečíta z neho ceny. Rovnaký leták sa druhýkrát nesťahuje.
    - **Lidl:** zo [sitemapy produktov](https://www.lidl.sk/p/export/SK/sk/product_sitemap.xml.gz) vyberie potraviny so značkou v názve a z ich stránok zoberie cenu, prečiarknutú cenu a platnosť ([src/sources/lidl.js](src/sources/lidl.js)). Akciu, ktorú Lidl dá len do PDF letáku bez stránky produktu, nezachytí.
+   - **COOP Jednota:** z [letákov](https://www.coop.sk/letaky) (len celoslovenské, nie regionálne) stiahne PDF a cenu berie, len ak sedí s jednotkovou cenou za liter ([src/sources/coop.js](src/sources/coop.js)). Niektoré letáky Coop zverejní najprv bez PDF, tie sa prečítajú, až keď PDF pribudne.
+   - **Sirupy:** všetky produkty so slovom „sirup“ (okrem javorového, proti kašľu a pod., [src/brands.js](src/brands.js)) zo všetkých štyroch obchodov. Sirup bez vlastnej fotky má nakreslenú fľašu s označením „Ilustračný obrázok“.
+   - Keď sa zmení, čo sa z PDF letákov číta, zvýš `PDF_PARSER` v [src/check.js](src/check.js) a už prečítané letáky sa prečítajú znova.
    - **Tesco** sa nedá: jeho weby automatický prístup blokujú (HTTP 403 aj na robots.txt) a obchádzať to nebudeme.
    - Akcie, ktorým skončila platnosť, sa hneď zmažú.
 2. Pre nové akcie pošle cez Brevo kampaň na zoznam danej značky.

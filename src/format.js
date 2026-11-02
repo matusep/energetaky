@@ -24,8 +24,8 @@ export const formatDateTime = (iso) =>
 
 export const today = () => new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Bratislava' });
 
-/** „v Kauflande“, „v Bille“, „v Lidli“ */
-export const storeLocative = (store) => ({ billa: 'Bille', lidl: 'Lidli' })[store] ?? 'Kauflande';
+/** „v Kauflande“, „v Bille“, „v Lidli“, „v COOP Jednote“ */
+export const storeLocative = (store) => ({ billa: 'Bille', lidl: 'Lidli', coop: 'COOP Jednote' })[store] ?? 'Kauflande';
 
 export function discountPercent(deal) {
   if (!deal.regularPriceCents || deal.regularPriceCents <= deal.priceCents) return null;

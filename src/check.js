@@ -4,6 +4,8 @@ import * as store from './store.js';
 import { fetchKaufland } from './sources/kaufland.js';
 import { fetchBilla } from './sources/billa.js';
 import { fetchLidl } from './sources/lidl.js';
+import { fetchCoop } from './sources/coop.js';
+import { BRANDS } from './brands.js';
 import { sendDealCampaigns } from './brevo.js';
 import { build } from './build.js';
 import { runWelcome } from './welcome.js';
@@ -34,14 +36,24 @@ async function runSource(fn) {
   }
 }
 
+// Zvýš, keď sa zmení, čo sa z PDF letákov číta – už prečítané letáky sa potom prečítajú znova (2 = aj sirupy).
+const PDF_PARSER = 2;
+const reparse = process.env.FORCE || state.pdfParser !== PDF_PARSER;
+
 report.kaufland = await runSource(() => fetchKaufland());
 report.billa = await runSource(async () => {
-  const { pdfKey, deals: found } = await fetchBilla({ skipIfUrl: process.env.FORCE ? null : state.billaPdf });
+  const { pdfKey, deals: found } = await fetchBilla({ skipIfUrl: reparse ? null : state.billaPdf });
   if (found === null) return null; // rovnaký leták ako minule
   state.billaPdf = pdfKey;
   return found;
 });
 report.lidl = await runSource(() => fetchLidl());
+report.coop = await runSource(async () => {
+  const { read, deals: found } = await fetchCoop({ done: reparse ? [] : (state.coopPdfs ?? []) });
+  state.coopPdfs = read;
+  return found; // null = žiadny nový leták
+});
+state.pdfParser = PDF_PARSER;
 
 // Akcie z predošlých letákov, ktoré už neplatia, mažeme hneď.
 report.removed = 0;
@@ -54,7 +66,8 @@ for (const [id, d] of deals) {
 
 report.images = await syncImages(deals.values());
 
-const pending = [...deals.values()].filter((d) => !d.notifiedAt && !hidden.has(d.id));
+// E-maily idú len o energeťákoch; sirupy (/samo) sa iba zobrazujú na stránke.
+const pending = [...deals.values()].filter((d) => !d.notifiedAt && !hidden.has(d.id) && BRANDS[d.brand]);
 if (!config.notify) report.notify = 'vypnuté v site.config.json';
 else if (!pending.length) report.notify = 'nič nové';
 else if (pending.length > MAX_AUTO_NOTIFY) report.notify = `pozastavené – ${pending.length} nových akcií naraz, skontroluj ich`;

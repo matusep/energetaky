@@ -1,4 +1,4 @@
-import { detectBrand } from '../brands.js';
+import { detectProduct } from '../brands.js';
 import { fetchText } from './http.js';
 
 // Verejný prehľad akciových výrobkov (aktuálny a budúci týždeň).
@@ -56,7 +56,7 @@ const toCents = (s) => (s ? Math.round(Number(String(s).replace(/\s/g, '').repla
 
 function toDeal(o) {
   // Značku hľadáme len v názve a podnázve, nie v popise (tam býva „vhodné k …“ a pod.).
-  const brand = detectBrand(`${o.title ?? ''} ${o.subtitle ?? ''}`);
+  const brand = detectProduct(`${o.title ?? ''} ${o.subtitle ?? ''}`);
   if (!brand || !o.dateFrom || !o.dateTo || typeof o.price !== 'number') return null;
 
   const notes = [];

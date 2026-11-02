@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 140 360" width="140" height="360">
+  <!-- Ilustračná fľaša sirupu pre akcie bez vlastnej fotky produktu. -->
+  <rect x="50" y="6" width="40" height="34" rx="6" fill="#1d1d20"/>
+  <rect x="46" y="36" width="48" height="10" rx="3" fill="#2c2c31"/>
+  <path d="M54 46h32v34c0 10 34 22 34 52v196c0 14-10 24-24 24H44c-14 0-24-10-24-24V132c0-30 34-42 34-52z" fill="#e9eef2"/>
+  <path d="M24 150c30-10 62 10 92 0v178c0 11-8 20-20 20H44c-12 0-20-9-20-20z" fill="#d7263d"/>
+  <path d="M24 150c30-10 62 10 92 0v14c-30 10-62-10-92 0z" fill="#ef4b5f"/>
+  <rect x="24" y="196" width="92" height="96" fill="#ffffff"/>
+  <text x="70" y="252" text-anchor="middle" font-family="Arial Black, Arial, Helvetica, sans-serif" font-weight="900" font-size="26" fill="#d7263d" letter-spacing="1">SIRUP</text>
+  <rect x="44" y="266" width="52" height="5" rx="2.5" fill="#f4b8c0"/>
+  <path d="M34 140c0-22 22-32 22-50" stroke="#ffffff" stroke-opacity=".7" stroke-width="6" stroke-linecap="round" fill="none"/>
+  <rect x="30" y="300" width="8" height="40" rx="4" fill="#ffffff" fill-opacity=".35"/>
+</svg>

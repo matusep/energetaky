@@ -8,6 +8,7 @@ export const STORES = {
   kaufland: 'Kaufland',
   billa: 'BILLA',
   lidl: 'Lidl',
+  coop: 'COOP Jednota',
 };
 
 export const brevoApiKey = process.env.BREVO_API_KEY || '';

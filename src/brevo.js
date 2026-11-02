@@ -18,7 +18,7 @@ async function brevo(path, { method = 'POST', body } = {}) {
 }
 
 const legalFooter =
-  'Táto služba nie je prepojená so spoločnosťami Monster Energy, Red Bull, HELL ENERGY, Kaufland, BILLA ani Lidl. ' +
+  'Táto služba nie je prepojená so spoločnosťami Monster Energy, Red Bull, HELL ENERGY, Kaufland, BILLA, Lidl ani COOP Jednota. ' +
   'Ceny zisťujeme automaticky z letákov a môžu obsahovať chyby – záväzný je leták obchodu. ' +
   'Vysoký obsah kofeínu. Nevhodné pre deti, tehotné a dojčiace ženy.';
 
@@ -26,7 +26,7 @@ const legalFooter =
 // Obrázky musia mať plnú adresu na stránke a byť v PNG/JPG (WebP Outlook nezobrazí).
 const FONT = "font-family:'Schibsted Grotesk',Helvetica,Arial,sans-serif";
 const ACCENT = '#e6ff2e';
-const STORE_COLORS = { kaufland: ['#e10915', '#ffffff'], billa: ['#ffe500', '#000000'], lidl: ['#0050aa', '#fff000'] };
+const STORE_COLORS = { kaufland: ['#e10915', '#ffffff'], billa: ['#ffe500', '#000000'], lidl: ['#0050aa', '#fff000'], coop: ['#ffffff', '#e2001a'] };
 const abs = (path) => `${config.baseUrl}${path}`;
 
 function validity(deal) {

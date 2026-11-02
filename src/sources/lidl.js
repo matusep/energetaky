@@ -1,5 +1,5 @@
 import zlib from 'node:zlib';
-import { detectBrand } from '../brands.js';
+import { detectProduct } from '../brands.js';
 import { fetchPolite, fetchText } from './http.js';
 
 // Lidl zverejňuje akciové potraviny ako stránky produktov. Ich zoznam je v sitemape, ktorú odkazuje robots.txt.
@@ -15,7 +15,7 @@ export async function fetchLidl() {
   // Potraviny majú 8-ciferné číslo (p11214563), tovar z e-shopu 9-ciferné – tak vylúčime hračky „Monster Truck“ a pod.
   const candidates = urls.filter((url) => {
     const m = url.match(/\/p\/([^/]+)\/p(\d+)$/);
-    return m && m[2].length === 8 && detectBrand(m[1].replace(/-/g, ' '));
+    return m && m[2].length === 8 && detectProduct(m[1].replace(/-/g, ' '));
   });
 
   const deals = [];
@@ -50,7 +50,7 @@ function nuxtData(html) {
 const isoDay = (seconds) => new Date(seconds * 1000).toLocaleDateString('sv-SE', { timeZone: 'Europe/Bratislava' });
 
 export function parseProduct(html, url) {
-  // Len potraviny (energeťák), nie napr. tričko s logom.
+  // Len potraviny (energeťák, sirup), nie napr. tričko s logom.
   if (!/"categoryPrimary":"Food"/.test(html)) return null;
   const find = nuxtData(html);
   if (!find) return null;
@@ -58,9 +58,9 @@ export function parseProduct(html, url) {
   const price = find('oldPrice');
   const validity = find('validUntil');
   const title = find('fullTitle')?.fullTitle;
-  const brand = title && detectBrand(title);
-  // Bez prečiarknutej ceny a dátumov platnosti to nie je akcia, ale bežná cena.
-  if (!brand || typeof price?.price !== 'number' || !price.oldPrice || !validity?.validFrom || !validity?.validUntil) return null;
+  const brand = title && detectProduct(title);
+  // Bez dátumov platnosti to nie je akcia z letáku, ale bežná cena. Prečiarknutú cenu Lidl niekedy neuvádza.
+  if (!brand || typeof price?.price !== 'number' || !validity?.validFrom || !validity?.validUntil) return null;
 
   const id = url.match(/p(\d+)$/)[1];
   const ld = html.match(/<script type="application\/ld\+json">(\{"@context":"http:\/\/schema\.org","@type":"Product"[\s\S]*?)<\/script>/)?.[1];
@@ -82,7 +82,7 @@ export function parseProduct(html, url) {
     brand,
     product: title.slice(0, 120),
     priceCents: Math.round(price.price * 100),
-    regularPriceCents: Math.round(price.oldPrice * 100),
+    regularPriceCents: price.oldPrice ? Math.round(price.oldPrice * 100) : null,
     validFrom: isoDay(validity.validFrom),
     validTo: isoDay(validity.validUntil),
     note: notes.join(', '),
