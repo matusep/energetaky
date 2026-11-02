@@ -7,6 +7,7 @@ config.baseUrl = config.baseUrl.replace(/\/+$/, '');
 export const STORES = {
   kaufland: 'Kaufland',
   billa: 'BILLA',
+  lidl: 'Lidl',
 };
 
 export const brevoApiKey = process.env.BREVO_API_KEY || '';

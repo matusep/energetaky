@@ -76,5 +76,6 @@ function toDeal(o) {
     validTo: o.dateTo,
     note: notes.join(', '),
     sourceUrl: KAUFLAND_LEAFLET,
+    imageUrl: o.listImage || o.detailImages?.[0] || null,
   };
 }

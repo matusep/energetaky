@@ -51,7 +51,7 @@ async function allowedByRobots(url) {
   // Platí najdlhšie zhodné pravidlo; pri rovnakej dĺžke vyhráva Allow.
   let best = { length: -1, allow: true };
   for (const rule of rules) {
-    if (target.startsWith(rule.path) && (rule.path.length > best.length || (rule.path.length === best.length && rule.allow))) {
+    if (rule.re.test(target) && (rule.path.length > best.length || (rule.path.length === best.length && rule.allow))) {
       best = { length: rule.path.length, allow: rule.allow };
     }
   }
@@ -68,7 +68,17 @@ async function loadRobots(origin) {
   }
 }
 
-function parseRobots(text) {
+/** Pravidlo z robots.txt ako regulárny výraz: „*“ je ľubovoľný text, „$“ na konci je koniec adresy. */
+function robotsPattern(path) {
+  const anchored = path.endsWith('$');
+  const body = (anchored ? path.slice(0, -1) : path)
+    .split('*')
+    .map((part) => part.replace(/[.+?^${}()|[\]\\]/g, '\\$&'))
+    .join('.*');
+  return new RegExp(`^${body}${anchored ? '$' : ''}`);
+}
+
+export function parseRobots(text) {
   const groups = [];
   let current = null;
   let lastWasAgent = false;
@@ -85,7 +95,7 @@ function parseRobots(text) {
     } else {
       lastWasAgent = false;
       if (current && (key === 'allow' || key === 'disallow') && value) {
-        current.rules.push({ path: value.replace(/\*.*$/, ''), allow: key === 'allow' });
+        current.rules.push({ path: value, re: robotsPattern(value), allow: key === 'allow' });
       }
     }
   }

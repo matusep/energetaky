@@ -5,7 +5,16 @@ import { fileURLToPath } from 'node:url';
 
 // Jednoduchý lokálny server na prezretie dist/ – len na tvojom počítači, na internete stránku hostuje GitHub Pages.
 const dist = path.join(path.dirname(path.dirname(fileURLToPath(import.meta.url))), 'dist');
-const TYPES = { '.html': 'text/html; charset=utf-8', '.css': 'text/css', '.svg': 'image/svg+xml' };
+const TYPES = {
+  '.html': 'text/html; charset=utf-8',
+  '.css': 'text/css',
+  '.js': 'text/javascript',
+  '.svg': 'image/svg+xml',
+  '.webp': 'image/webp',
+  '.jpg': 'image/jpeg',
+  '.png': 'image/png',
+  '.woff2': 'font/woff2',
+};
 
 http
   .createServer((req, res) => {

@@ -16,13 +16,16 @@ export function formatDate(iso) {
   return `${d}. ${m}. ${y}`;
 }
 
+/** „3. 11.“ – krátky dátum bez roka. */
+export const shortDate = (iso) => formatDate(iso).replace(/ \d{4}$/, '');
+
 export const formatDateTime = (iso) =>
   new Date(iso).toLocaleString('sk-SK', { timeZone: 'Europe/Bratislava', dateStyle: 'short', timeStyle: 'short' });
 
 export const today = () => new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Bratislava' });
 
-/** „v Kauflande“, „v Bille“ */
-export const storeLocative = (store) => (store === 'billa' ? 'Bille' : 'Kauflande');
+/** „v Kauflande“, „v Bille“, „v Lidli“ */
+export const storeLocative = (store) => ({ billa: 'Bille', lidl: 'Lidli' })[store] ?? 'Kauflande';
 
 export function discountPercent(deal) {
   if (!deal.regularPriceCents || deal.regularPriceCents <= deal.priceCents) return null;

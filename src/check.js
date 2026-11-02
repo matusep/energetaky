@@ -3,9 +3,11 @@ import { today } from './format.js';
 import * as store from './store.js';
 import { fetchKaufland } from './sources/kaufland.js';
 import { fetchBilla } from './sources/billa.js';
+import { fetchLidl } from './sources/lidl.js';
 import { sendDealCampaigns } from './brevo.js';
 import { build } from './build.js';
 import { runWelcome } from './welcome.js';
+import { syncImages } from './images.js';
 
 // Ak by kontrola naraz našla viac nových akcií, je to skôr chyba parsera než realita – e-maily vtedy nepošleme sami.
 const MAX_AUTO_NOTIFY = 10;
@@ -39,6 +41,7 @@ report.billa = await runSource(async () => {
   state.billaPdf = pdfKey;
   return found;
 });
+report.lidl = await runSource(() => fetchLidl());
 
 // Akcie z predošlých letákov, ktoré už neplatia, mažeme hneď.
 report.removed = 0;
@@ -48,6 +51,8 @@ for (const [id, d] of deals) {
     report.removed++;
   }
 }
+
+report.images = await syncImages(deals.values());
 
 const pending = [...deals.values()].filter((d) => !d.notifiedAt && !hidden.has(d.id));
 if (!config.notify) report.notify = 'vypnuté v site.config.json';

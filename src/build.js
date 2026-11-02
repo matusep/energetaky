@@ -5,6 +5,7 @@ import { config } from './config.js';
 import { today } from './format.js';
 import * as store from './store.js';
 import * as pages from './pages.js';
+import { imageDir } from './images.js';
 
 const root = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const dist = path.join(root, 'dist');
@@ -20,6 +21,7 @@ export function build() {
 
   fs.rmSync(dist, { recursive: true, force: true });
   fs.cpSync(path.join(root, 'public'), dist, { recursive: true });
+  if (fs.existsSync(imageDir)) fs.cpSync(imageDir, path.join(dist, 'img/deals'), { recursive: true });
 
   const write = (file, html) => {
     fs.mkdirSync(path.dirname(path.join(dist, file)), { recursive: true });
