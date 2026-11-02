@@ -298,6 +298,8 @@ a:hover > .arrow, button:hover > .arrow { transform: translateX(4px); }
 .footer { margin-top: var(--gap); padding: 0 var(--margin) 40px; }
 .footer__top { display: flex; justify-content: space-between; align-items: end; gap: 24px; flex-wrap: wrap; padding: 48px 0 40px; border-top: 1px solid var(--line); }
 .footer__actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.footer__links .footer__samo { display: inline-flex; align-items: center; gap: 8px; color: var(--accent); font-weight: 700; }
+.footer__links .footer__samo:hover { color: #fff; }
 .footer__name { font-size: var(--step-display); font-weight: 800; letter-spacing: -0.055em; line-height: 0.85; text-decoration: none; }
 .footer__stores { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; padding: 20px 0; border-top: 1px solid var(--line); color: var(--muted); font-size: var(--step-small); }
 .footer__stores span { margin-right: 4px; }

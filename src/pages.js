@@ -91,7 +91,7 @@ function footer(lastCheck, samo = false) {
       <div class="footer__actions">
         ${samo
           ? `<a class="btn" href="/">Energeťáky v akcii ${ARROW}</a>`
-          : `<a class="btn" href="/#odber">Chcem upozornenie ${ARROW}</a><a class="btn btn--ghost" href="/samo/">Zľavy pre Samka ${ARROW}</a>`}
+          : `<a class="btn" href="/#odber">Chcem upozornenie ${ARROW}</a>`}
       </div>
     </div>
     <div class="footer__stores">
@@ -104,6 +104,9 @@ function footer(lastCheck, samo = false) {
         <a href="/#odber">Odber upozornení</a>
         <a href="/sukromie/">Ochrana súkromia</a>
         <a href="/podmienky/">Podmienky používania</a>
+        ${samo
+          ? `<a class="footer__samo" href="/">Energeťáky v akcii ${ARROW}</a>`
+          : `<a class="footer__samo" href="/samo/">Zľavy pre Samka ${ARROW}</a>`}
         ${config.contactEmail ? `<a href="mailto:${e(config.contactEmail)}">${e(config.contactEmail)}</a>` : ''}
       </nav>
       <div class="footer__legal">
