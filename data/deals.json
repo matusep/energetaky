@@ -11,6 +11,53 @@
     "note": "cena pri kúpe od 2 ks",
     "sourceUrl": "https://www.billa.sk/letaky-a-akcie/aktualny-letak",
     "firstSeen": "2026-10-30T09:09:45.372Z",
-    "notifiedAt": "2026-10-30T10:46:51.307Z"
+    "notifiedAt": "2026-10-30T10:46:51.307Z",
+    "image": null
+  },
+  {
+    "id": "billa:d07afa74f7:20:sirup:265",
+    "store": "billa",
+    "brand": "sirup",
+    "product": "Jupí Extra, sirup, viac druhov, 0,7 l",
+    "priceCents": 265,
+    "regularPriceCents": null,
+    "validFrom": "2026-10-28",
+    "validTo": "2026-11-03",
+    "note": "",
+    "sourceUrl": "https://www.billa.sk/letaky-a-akcie/aktualny-letak",
+    "firstSeen": "2026-11-02T20:54:13.479Z",
+    "notifiedAt": null,
+    "image": null
+  },
+  {
+    "id": "kaufland:20261029000000.20860154.SK.1020.0000017729",
+    "store": "kaufland",
+    "brand": "sirup",
+    "product": "CAPRIO plus Sirup s vitamínmi, 0,7 l",
+    "priceCents": 199,
+    "regularPriceCents": null,
+    "validFrom": "2026-10-29",
+    "validTo": "2026-11-04",
+    "note": "Cena s Kaufland XTRA, s Kaufland Card 0,99 €",
+    "sourceUrl": "https://predajne.kaufland.sk/aktualna-ponuka/letak.html",
+    "imageUrl": "https://kaufland.media.schwarz/is/image/schwarz/20860154_P",
+    "firstSeen": "2026-11-02T20:54:13.479Z",
+    "notifiedAt": null,
+    "image": "kaufland-20261029000000-20860154-SK-1020-0000017729.jpg"
+  },
+  {
+    "id": "coop:41dd4521df:26:sirup:599",
+    "store": "coop",
+    "brand": "sirup",
+    "product": "Sunquick sirup pomaranč 0,7 l",
+    "priceCents": 599,
+    "regularPriceCents": null,
+    "validFrom": "2026-11-05",
+    "validTo": "2026-11-11",
+    "note": "",
+    "sourceUrl": "https://www.coop.sk/letaky/potraviny-supermarket-a-tempo-44-2026",
+    "firstSeen": "2026-11-02T20:54:13.479Z",
+    "notifiedAt": null,
+    "image": null
   }
 ]
