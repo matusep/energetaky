@@ -19,7 +19,7 @@
     "redbull": 6
   },
   "lastWelcome": {
-    "at": "2026-10-30T11:13:10.626Z",
-    "result": "Monster: 4 nových, uvítanie s akciami 0; Red Bull: 4 nových, uvítanie s akciami 2; Hell: 4 nových, uvítanie s akciami 0"
+    "at": "2026-11-02T01:02:43.027Z",
+    "result": "chyba – Brevo POST /emailCampaigns: HTTP 400 {\"code\":\"invalid_parameter\",\"message\":\"There are no contacts associated with the given recipients info\"}\n"
   }
 }
