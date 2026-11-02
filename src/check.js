@@ -36,8 +36,9 @@ async function runSource(fn) {
   }
 }
 
-// Zvýš, keď sa zmení, čo sa z PDF letákov číta – už prečítané letáky sa potom prečítajú znova (2 = aj sirupy).
-const PDF_PARSER = 2;
+// Zvýš, keď sa zmení, čo sa z PDF letákov číta – už prečítané letáky sa potom prečítajú znova
+// (2 = aj sirupy, 3 = fotky produktov z letáku).
+const PDF_PARSER = 3;
 const reparse = process.env.FORCE || state.pdfParser !== PDF_PARSER;
 
 report.kaufland = await runSource(() => fetchKaufland());

@@ -1,7 +1,9 @@
 import crypto from 'node:crypto';
 import { getDocument } from 'pdfjs-dist/legacy/build/pdf.mjs';
-import { detectProduct } from '../brands.js';
+import { detectProduct, SYRUP } from '../brands.js';
 import { fetchText, fetchPolite } from './http.js';
+import { pageImages, productPhoto } from './pdfImages.js';
+import { saveImage } from '../images.js';
 
 export const COOP_LEAFLETS = 'https://www.coop.sk/letaky';
 
@@ -21,10 +23,9 @@ export async function fetchCoop({ done = [] } = {}) {
     await new Promise((r) => setTimeout(r, 2000)); // nezaťažujeme server
     const page = `${COOP_LEAFLETS}/${slug}`;
     const { text: html } = await fetchText(page);
-    const pdf = html.match(/href="(\/buxus\/docs\/[^"]+\.pdf)"/)?.[1];
     const validity = parseValidity(html);
-    if (!pdf || !validity) continue;
-    const pdfUrl = new URL(pdf, page).href;
+    const pdfUrl = (await pdfOf(html, page)) ?? null;
+    if (!pdfUrl || !validity) continue;
     read.push(pdfUrl);
     if (done.includes(pdfUrl)) continue;
 
@@ -33,6 +34,21 @@ export async function fetchCoop({ done = [] } = {}) {
     deals.push(...(await parseCoopPdf(new Uint8Array(buffer), { ...validity, pdfUrl, sourceUrl: page })));
   }
   return { read, deals };
+}
+
+/**
+ * Adresa PDF letáku: buď odkaz „Stiahnuť PDF“ na coop.sk, alebo PDF z prehliadača Adobe InDesign (indd.adobe.com),
+ * v ktorom Coop niektoré letáky zverejňuje. Jeho aktuálnu verziu a názov PDF povie verejné API prehliadača.
+ */
+async function pdfOf(html, page) {
+  const direct = html.match(/href="(\/buxus\/docs\/[^"]+\.pdf)"/)?.[1];
+  if (direct) return new URL(direct, page).href;
+  const id = html.match(/indd\.adobe\.com\/view\/([0-9a-f-]{36})/)?.[1];
+  if (!id) return null;
+  const { text } = await fetchText(`https://indd.adobe.com/api/v1/getManifestdata?pubId=${id}`);
+  const { data, activeVersion } = JSON.parse(text);
+  if (!data?.documentPdf) return null;
+  return `https://indd.adobe.com/view/publication/${id}/${activeVersion !== undefined ? `${activeVersion}/` : ''}${data.documentPdf}`;
 }
 
 /** „platné od 5.11. do 11.11.2026“ → { validFrom: '2026-11-05', validTo: '2026-11-11' } */
@@ -70,15 +86,18 @@ export async function parseCoopPdf(data, { validFrom, validTo, pdfUrl, sourceUrl
     const items = (await page.getTextContent()).items
       .filter((i) => i.str?.trim())
       .map((i) => ({ str: i.str.trim(), x: i.transform[4], y: i.transform[5], size: Math.abs(i.transform[3]) }));
-    page.cleanup();
+    const { width, height } = page.getViewport({ scale: 1 });
+    let images = null; // obrázky stránky načítame, až keď na nej nájdeme akciu
 
     for (const anchor of items) {
       const brand = detectProduct(anchor.str);
       if (!brand) continue;
 
-      // Názov: riadky pod sebou v rovnakom stĺpci, kým nepríde „jednotková cena“.
+      // Názov: riadky pod sebou v rovnakom stĺpci, kým nepríde „jednotková cena“. Značka býva aj nad slovom
+      // „sirup“ („Zlatá Studňa“ / „Multivitamín“ / „sirup 0,7 l“), preto berieme aj dva riadky nad ním.
+      const above = brand === SYRUP ? 26 : 0;
       const lines = items
-        .filter((o) => o.y <= anchor.y && o.y > anchor.y - 30 && o.x >= anchor.x - 5 && o.x < anchor.x + 140 && o.size >= anchor.size * 0.8 && !/jednotkov|EUR\//i.test(o.str))
+        .filter((o) => o.y <= anchor.y + above && o.y > anchor.y - 30 && o.x >= anchor.x - (above ? 30 : 5) && o.x < anchor.x + 140 && Math.abs(o.size - anchor.size) <= anchor.size * 0.2 && !/jednotkov|EUR\//i.test(o.str))
         .sort((a, b) => b.y - a.y || a.x - b.x);
       const name = lines.map((o) => o.str).join(' ').replace(/\s+/g, ' ');
       const volume = litres(name);
@@ -106,8 +125,14 @@ export async function parseCoopPdf(data, { validFrom, validTo, pdfUrl, sourceUrl
         .find((o) => items.some((z) => /zľava/i.test(z.str) && Math.abs(z.y - o.y) < 6 && Math.abs(z.x - o.x) < 40));
       const pct = pctItem ? Number(pctItem.str.replace(/\D/g, '')) : null;
 
+      const externalId = `coop:${pdfId}:${p}:${brand}:${price}`;
+      // Fotka produktu priamo z letáku: farebný obrázok najbližšie k názvu.
+      images ??= await pageImages(page);
+      const photo = await productPhoto(doc, page, images, { x: anchor.x, y: anchor.y, radius: 140, pageArea: width * height });
+      if (photo) saveImage(externalId, photo, 'webp');
+
       deals.push({
-        externalId: `coop:${pdfId}:${p}:${brand}:${price}`,
+        externalId,
         store: 'coop',
         brand,
         product: name.slice(0, 120),
@@ -119,6 +144,7 @@ export async function parseCoopPdf(data, { validFrom, validTo, pdfUrl, sourceUrl
         sourceUrl,
       });
     }
+    page.cleanup();
   }
   await task.destroy();
   return deals;

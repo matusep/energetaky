@@ -164,6 +164,10 @@ function can(brand, size) {
   return `<img class="can ${size}" src="/img/cans/${e(file)}" alt="${e(alt)}" width="350" height="900" loading="lazy" decoding="async">`;
 }
 
+// Samkova obľúbená značka sirupu dostane na kartu zlatú hviezdičku.
+const isFavourite = (deal) => /zlat[áa]\s+studň?a/i.test(deal.product);
+const STAR = '<span class="deal__star" title="Zlatá studňa"><svg viewBox="0 0 24 24" width="56" height="56" aria-hidden="true"><path d="M12 1.8l3.1 6.5 7.1.9-5.2 4.9 1.3 7-6.3-3.4-6.3 3.4 1.3-7L1.8 9.2l7.1-.9z" fill="#ffc83d" stroke="#b07800" stroke-width=".8" stroke-linejoin="round"/><path d="M12 4.6l2.2 4.6 4.9.6" fill="none" stroke="#fff2b8" stroke-width="1.2" stroke-linecap="round"/></svg><span class="sr-only">Zlatá studňa</span></span>';
+
 function dealCard(deal, i) {
   const pct = discountPercent(deal);
   const size = canSize(deal.product);
@@ -178,6 +182,7 @@ function dealCard(deal, i) {
       </header>
       <div class="deal__stage" data-tilt>
         ${pct ? `<span class="deal__badge">−${pct} %</span>` : ''}
+        ${isFavourite(deal) ? STAR : ''}
         ${picture}
         <span class="deal__floor" aria-hidden="true"></span>
         ${deal.image ? '' : '<span class="deal__illus">Ilustračný obrázok</span>'}

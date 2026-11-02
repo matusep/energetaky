@@ -15,8 +15,8 @@ Statická stránka, ktorá 2× denne automaticky prečíta letáky Kauflandu, Bi
    - **Kaufland:** prečíta [prehľad akciových výrobkov](https://predajne.kaufland.sk/aktualna-ponuka/prehlad.html) za aktuálny aj budúci týždeň.
    - **BILLA:** zo stránky [aktuálny leták](https://www.billa.sk/letaky-a-akcie/aktualny-letak) stiahne PDF (len do pamäte, na disk sa neukladá) a prečíta z neho ceny. Rovnaký leták sa druhýkrát nesťahuje.
    - **Lidl:** zo [sitemapy produktov](https://www.lidl.sk/p/export/SK/sk/product_sitemap.xml.gz) vyberie potraviny so značkou v názve a z ich stránok zoberie cenu, prečiarknutú cenu a platnosť ([src/sources/lidl.js](src/sources/lidl.js)). Akciu, ktorú Lidl dá len do PDF letáku bez stránky produktu, nezachytí.
-   - **COOP Jednota:** z [letákov](https://www.coop.sk/letaky) (len celoslovenské, nie regionálne) stiahne PDF a cenu berie, len ak sedí s jednotkovou cenou za liter ([src/sources/coop.js](src/sources/coop.js)). Niektoré letáky Coop zverejní najprv bez PDF, tie sa prečítajú, až keď PDF pribudne.
-   - **Sirupy:** všetky produkty so slovom „sirup“ (okrem javorového, proti kašľu a pod., [src/brands.js](src/brands.js)) zo všetkých štyroch obchodov. Sirup bez vlastnej fotky má nakreslenú fľašu s označením „Ilustračný obrázok“.
+   - **COOP Jednota:** z [letákov](https://www.coop.sk/letaky) (len celoslovenské, nie regionálne) stiahne PDF a cenu berie, len ak sedí s jednotkovou cenou za liter ([src/sources/coop.js](src/sources/coop.js)). Letáky, ktoré Coop zverejní len v prehliadači Adobe InDesign (indd.adobe.com), sa čítajú z PDF, ktoré ten prehliadač ponúka na stiahnutie.
+   - **Sirupy:** všetky produkty so slovom „sirup“ (okrem javorového, proti kašľu a pod., [src/brands.js](src/brands.js)) zo všetkých štyroch obchodov. Zlatá studňa (Samkova obľúbená) má na karte zlatú hviezdičku.
    - Keď sa zmení, čo sa z PDF letákov číta, zvýš `PDF_PARSER` v [src/check.js](src/check.js) a už prečítané letáky sa prečítajú znova.
    - **Tesco** sa nedá: jeho weby automatický prístup blokujú (HTTP 403 aj na robots.txt) a obchádzať to nebudeme.
    - Akcie, ktorým skončila platnosť, sa hneď zmažú.
@@ -49,6 +49,7 @@ Skopíruj jej `"id"` z [data/deals.json](data/deals.json) do [data/hidden.json](
 
 - Číta sa len verejný obsah, ktorý robots.txt nezakazuje. Program sa predstavuje ako `AkcnaPlechovkaBot/1.0` s kontaktom.
 - Kontrola beží 2× denne. **Nič sa neobchádza:** pri CAPTCHA, 403 alebo 429 sa kontrola obchodu zastaví a v logu Actions je chyba.
+- Pri akciách z PDF letákov (BILLA, COOP Jednota) sa fotka produktu vytiahne priamo z letáku: najbližší farebný obrázok pri názve ([src/sources/pdfImages.js](src/sources/pdfImages.js)). Kde sa nenájde, ukáže sa ilustračný obrázok.
 - Z letákov sa ukladajú len fakty (produkt, cena, platnosť) s odkazom na originál, nie texty letákov.
 - Pri akcii z Kauflandu a Lidla sa stiahne fotka produktu z ich verejnej ponuky do `data/img/` a zmaže sa spolu s akciou ([src/images.js](src/images.js)). BILLA fotky neposiela, tam stránka ukáže ilustračnú fotku klasickej plechovky značky ([public/img/cans/](public/img/cans/)).
 

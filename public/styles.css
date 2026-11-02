@@ -192,6 +192,12 @@ a:hover > .arrow, button:hover > .arrow { transform: translateX(4px); }
   background: var(--accent); color: #000;
   font-size: clamp(1.75rem, 1.4rem + 1.2vw, 2.5rem); font-weight: 800; letter-spacing: -0.04em; line-height: 1.1;
 }
+.deal__star {
+  position: absolute; right: 14px; top: 50%; translate: 0 -50%; z-index: 2;
+  filter: drop-shadow(0 6px 10px rgb(176 120 0 / .35));
+  animation: twinkle 3.2s ease-in-out infinite;
+}
+.deal__star svg { display: block; }
 .deal__illus { position: absolute; right: 16px; bottom: 12px; font-size: 0.75rem; color: #6b6b72; }
 .deal__body { display: flex; flex-direction: column; gap: 12px; padding: 20px 16px 16px; flex: 1; }
 .deal__name { font-size: var(--step-lead); font-weight: 600; letter-spacing: -0.015em; line-height: 1.25; }
@@ -362,6 +368,7 @@ a:hover > .arrow, button:hover > .arrow { transform: translateX(4px); }
 @keyframes rise { from { opacity: 0; transform: translateY(24px); } }
 @keyframes float { 50% { translate: 0 -10px; } }
 @keyframes floor { 50% { scale: .82; opacity: .7; } }
+@keyframes twinkle { 50% { rotate: 12deg; scale: 1.12; } }
 @keyframes ping { 70%, 100% { scale: 2.6; opacity: 0; } }
 
 @media (prefers-reduced-motion: no-preference) {
