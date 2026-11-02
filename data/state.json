@@ -1,16 +1,16 @@
 {
   "billaPdf": "https://view.publitas.com/64070/3470637/pdfs/b82fead5-3f28-4bd6-bea0-692350accf71.pdf",
   "lastCheck": {
-    "at": "2026-11-02T20:54:13.479Z",
+    "at": "2026-11-02T21:17:16.933Z",
     "kaufland": {
       "ok": true,
       "found": 1,
-      "added": 1
+      "added": 0
     },
     "billa": {
       "ok": true,
       "found": 2,
-      "added": 1
+      "added": 0
     },
     "lidl": {
       "ok": true,
@@ -19,17 +19,17 @@
     },
     "coop": {
       "ok": true,
-      "found": 1,
+      "found": 2,
       "added": 1
     },
     "removed": 0,
     "images": {
-      "downloaded": 1,
+      "downloaded": 0,
       "removed": 0,
       "failed": 0
     },
     "notify": "nič nové",
-    "welcome": "Monster: 1 nových, uvítanie s akciami 0; Red Bull: 1 nových, uvítanie s akciami 1; Hell: 1 nových, uvítanie s akciami 0"
+    "welcome": "žiadni noví odberatelia"
   },
   "welcomeLists": {
     "redbull": 6
@@ -39,7 +39,10 @@
     "result": "chyba – Brevo POST /emailCampaigns: HTTP 400 {\"code\":\"invalid_parameter\",\"message\":\"There are no contacts associated with the given recipients info\"}\n"
   },
   "coopPdfs": [
-    "https://www.coop.sk/buxus/docs/IN3526_final_small.pdf"
+    "https://indd.adobe.com/view/publication/ab1dcc8b-548c-4fd3-bc13-ce94fbf9e679/1/publication-web-resources/pdf/IN4326.pdf",
+    "https://indd.adobe.com/view/publication/5d0a98aa-a470-42c7-a99c-bce9850d58f6/0d73/publication-web-resources/pdf/TEMPO_0526_web.pdf",
+    "https://www.coop.sk/buxus/docs/IN3526_final_small.pdf",
+    "https://indd.adobe.com/view/publication/276e79bf-1cfd-42e0-bae6-969b2bf8829d/iroi/publication-web-resources/pdf/TEMPO_0626_web.pdf"
   ],
-  "pdfParser": 2
+  "pdfParser": 3
 }

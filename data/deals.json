@@ -12,7 +12,7 @@
     "sourceUrl": "https://www.billa.sk/letaky-a-akcie/aktualny-letak",
     "firstSeen": "2026-10-30T09:09:45.372Z",
     "notifiedAt": "2026-10-30T10:46:51.307Z",
-    "image": null
+    "image": "billa-d07afa74f7-1-redbull-100.webp"
   },
   {
     "id": "billa:d07afa74f7:20:sirup:265",
@@ -27,7 +27,22 @@
     "sourceUrl": "https://www.billa.sk/letaky-a-akcie/aktualny-letak",
     "firstSeen": "2026-11-02T20:54:13.479Z",
     "notifiedAt": null,
-    "image": null
+    "image": "billa-d07afa74f7-20-sirup-265.webp"
+  },
+  {
+    "id": "coop:88abb700a3:11:sirup:159",
+    "store": "coop",
+    "brand": "sirup",
+    "product": "Zlatá Studňa Multivitamín sirup 0,7 l",
+    "priceCents": 159,
+    "regularPriceCents": null,
+    "validFrom": "2026-10-29",
+    "validTo": "2026-11-04",
+    "note": "",
+    "sourceUrl": "https://www.coop.sk/letaky/potraviny-supermarket-a-tempo-43-2026",
+    "firstSeen": "2026-11-02T21:17:16.933Z",
+    "notifiedAt": null,
+    "image": "coop-88abb700a3-11-sirup-159.webp"
   },
   {
     "id": "kaufland:20261029000000.20860154.SK.1020.0000017729",
@@ -58,6 +73,6 @@
     "sourceUrl": "https://www.coop.sk/letaky/potraviny-supermarket-a-tempo-44-2026",
     "firstSeen": "2026-11-02T20:54:13.479Z",
     "notifiedAt": null,
-    "image": null
+    "image": "coop-41dd4521df-26-sirup-599.webp"
   }
 ]
