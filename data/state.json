@@ -19,7 +19,7 @@
     "redbull": 6
   },
   "lastWelcome": {
-    "at": "2026-11-02T01:02:43.027Z",
+    "at": "2026-11-02T08:21:03.056Z",
     "result": "chyba – Brevo POST /emailCampaigns: HTTP 400 {\"code\":\"invalid_parameter\",\"message\":\"There are no contacts associated with the given recipients info\"}\n"
   }
 }
