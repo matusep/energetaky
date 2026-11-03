@@ -74,5 +74,37 @@
     "firstSeen": "2026-11-02T20:54:13.479Z",
     "notifiedAt": null,
     "image": "coop-41dd4521df-26-sirup-599.webp"
+  },
+  {
+    "id": "kaufland:20261105000000.00133361.SK.1020.0000018067",
+    "store": "kaufland",
+    "brand": "redbull",
+    "product": "Red Bull Energetický nápoj, 0,25 l",
+    "priceCents": 129,
+    "regularPriceCents": 175,
+    "validFrom": "2026-11-05",
+    "validTo": "2026-11-11",
+    "note": "Cena s Kaufland XTRA, s Kaufland Card 1,09 €, + záloha za obal",
+    "sourceUrl": "https://predajne.kaufland.sk/aktualna-ponuka/letak.html",
+    "imageUrl": "https://kaufland.media.schwarz/is/image/schwarz/00133361_P",
+    "firstSeen": "2026-11-03T12:49:09.961Z",
+    "notifiedAt": "2026-11-03T12:49:09.961Z",
+    "image": "kaufland-20261105000000-00133361-SK-1020-0000018067.jpg"
+  },
+  {
+    "id": "kaufland:20261105000000.20962342.SK.1020.0000018067",
+    "store": "kaufland",
+    "brand": "sirup",
+    "product": "Hello plus Sirup s vitamínmi, 0,7 l",
+    "priceCents": 109,
+    "regularPriceCents": 149,
+    "validFrom": "2026-11-05",
+    "validTo": "2026-11-11",
+    "note": "Cena s Kaufland XTRA, s Kaufland Card 0,99 €",
+    "sourceUrl": "https://predajne.kaufland.sk/aktualna-ponuka/letak.html",
+    "imageUrl": "https://kaufland.media.schwarz/is/image/schwarz/8590014813939_SK_P",
+    "firstSeen": "2026-11-03T12:49:09.961Z",
+    "notifiedAt": null,
+    "image": "kaufland-20261105000000-20962342-SK-1020-0000018067.jpg"
   }
 ]
