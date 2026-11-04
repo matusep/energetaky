@@ -1,7 +1,7 @@
 {
   "billaPdf": "https://view.publitas.com/64070/3497101/pdfs/0fc72a8a-b196-49af-96b9-136eaec2ec2d.pdf",
   "lastCheck": {
-    "at": "2026-11-04T19:42:50.394Z",
+    "at": "2026-11-04T22:24:21.956Z",
     "kaufland": {
       "ok": true,
       "found": 3,
@@ -9,7 +9,8 @@
     },
     "billa": {
       "ok": true,
-      "skipped": true
+      "found": 3,
+      "added": 0
     },
     "lidl": {
       "ok": true,
@@ -18,7 +19,8 @@
     },
     "coop": {
       "ok": true,
-      "skipped": true
+      "found": 2,
+      "added": 0
     },
     "removed": 0,
     "images": {
@@ -42,5 +44,5 @@
     "https://www.coop.sk/buxus/docs/IN3526_final_small.pdf",
     "https://indd.adobe.com/view/publication/276e79bf-1cfd-42e0-bae6-969b2bf8829d/iroi/publication-web-resources/pdf/TEMPO_0626_web.pdf"
   ],
-  "pdfParser": 3
+  "pdfParser": 4
 }
