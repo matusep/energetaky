@@ -74,8 +74,44 @@
     el.textContent = `${day} o ${d.toLocaleTimeString('sk-SK', { hour: 'numeric', minute: '2-digit' })}`;
   }
 
+  const today = () => new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Bratislava' });
+  const daysBetween = (from, to) => Math.round((Date.parse(to) - Date.parse(from)) / 86_400_000);
+  const shortDate = (iso) => {
+    const [, m, d] = iso.split('-').map(Number);
+    return `${d}. ${m}.`;
+  };
+
+  /** Stránka sa zostavuje len pri kontrole, „Končí zajtra“ preto počítame podľa dnešného dátumu návštevníka. */
+  function dealTime(el) {
+    const { from, to } = el.dataset;
+    const now = today();
+    if (to < now) {
+      el.textContent = 'Akcia skončila';
+      el.closest('.deal').classList.add('deal--over');
+      return;
+    }
+    if (from > now) {
+      el.textContent = daysBetween(now, from) === 1 ? 'Začína zajtra' : `Začína ${shortDate(from)}`;
+      return;
+    }
+    const days = daysBetween(now, to);
+    const until = `do ${shortDate(to)}`;
+    if (days === 0) el.textContent = 'Dnes posledný deň';
+    else if (days === 1) el.textContent = `Končí zajtra · ${until}`;
+    else el.textContent = `Ešte ${days} ${days < 5 ? 'dni' : 'dní'} · ${until}`;
+  }
+
+  /** Akcia z úvodu mohla od poslednej kontroly skončiť. */
+  function heroAnswer(el) {
+    if (el.dataset.validTo >= today()) return;
+    el.querySelector('strong').textContent = 'Akcia skončila.';
+    el.lastChild.textContent = ' Letáky čoskoro znova skontrolujeme.';
+  }
+
   function init() {
     document.querySelectorAll('time[data-relative]').forEach(relative);
+    document.querySelectorAll('.deal__when[data-to]').forEach(dealTime);
+    document.querySelectorAll('.panel__answer[data-valid-to]').forEach(heroAnswer);
     if (reduce) {
       document.querySelectorAll('.reveal, [data-split]').forEach(enter);
       return;

@@ -178,7 +178,7 @@ function dealCard(deal, i) {
     <article class="deal deal--${e(deal.store)} reveal" data-delay="${i}">
       <header class="deal__where">
         <span class="deal__shop">${e(STORES[deal.store])}</span>
-        <span class="deal__when">${e(when(deal))}</span>
+        <span class="deal__when" data-from="${e(deal.validFrom)}" data-to="${e(deal.validTo)}">${e(when(deal))}</span>
       </header>
       <div class="deal__stage" data-tilt>
         ${pct ? `<span class="deal__badge">−${pct} %</span>` : ''}
@@ -221,11 +221,14 @@ function deals(list, idle = ENERGY_IDLE) {
   return `<div class="deals${cls}">${list.length ? list.map(dealCard).join('') : idle.map(brandCard).join('')}</div>`;
 }
 
+function cheapestLive(list) {
+  const now = today();
+  return list.filter((d) => d.validFrom <= now).reduce((min, d) => (!min || d.priceCents < min.priceCents ? d : min), null);
+}
+
 /** Odpoveď na otázku z nadpisu: [„Áno.“, „Red Bull za 1,00 € v Bille, do 3. 11. 2026.“] */
 function answerParts(list, nothing = 'Napíšeme ti, keď bude.') {
-  const now = today();
-  const live = list.filter((d) => d.validFrom <= now);
-  const cheapest = live.reduce((min, d) => (!min || d.priceCents < min.priceCents ? d : min), null);
+  const cheapest = cheapestLive(list);
   if (cheapest) {
     return ['Áno.', `${productName(cheapest)} za ${formatPrice(cheapest.priceCents)} v ${storeLocative(cheapest.store)}, do ${formatDate(cheapest.validTo)}.`];
   }
@@ -235,7 +238,8 @@ function answerParts(list, nothing = 'Napíšeme ti, keď bude.') {
 
 function answer(list, nothing) {
   const [lead, rest] = answerParts(list, nothing);
-  return `<p class="panel__answer"><strong>${e(lead)}</strong> ${e(rest)}</p>`;
+  const until = cheapestLive(list)?.validTo;
+  return `<p class="panel__answer"${until ? ` data-valid-to="${e(until)}"` : ''}><strong>${e(lead)}</strong> ${e(rest)}</p>`;
 }
 
 /** Stena plechoviek v úvode: riadky výrezov ako tehly, medzi nimi ploché farebné dlaždice. */

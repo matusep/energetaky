@@ -198,6 +198,7 @@ a:hover > .arrow, button:hover > .arrow { transform: translateX(4px); }
   animation: twinkle 3.2s ease-in-out infinite;
 }
 .deal__star svg { display: block; }
+.deal--over > * { filter: grayscale(1); opacity: .55; }
 .deal__illus { position: absolute; right: 16px; bottom: 12px; font-size: 0.75rem; color: #6b6b72; }
 .deal__body { display: flex; flex-direction: column; gap: 12px; padding: 20px 16px 16px; flex: 1; }
 .deal__name { font-size: var(--step-lead); font-weight: 600; letter-spacing: -0.015em; line-height: 1.25; }

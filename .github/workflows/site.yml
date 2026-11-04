@@ -2,8 +2,9 @@ name: Kontrola letákov a stránka
 
 on:
   schedule:
-    # 2× denne (čas je v UTC): 5:17 a 15:17 UTC = 6:17 a 16:17 v zime, o hodinu neskôr v lete.
-    - cron: '17 5,15 * * *'
+    # 2× denne (čas je v UTC): 0:17 a 12:17 UTC = 1:17 a 13:17 v zime, o hodinu neskôr v lete.
+    # Prvá kontrola je na začiatku dňa, aby sa skončené akcie zmazali čo najskôr. GitHub ju môže spustiť aj o pár hodín neskôr.
+    - cron: '17 0,12 * * *'
   # Tlačidlo „Run workflow“ v záložke Actions – spustí kontrolu hneď.
   workflow_dispatch:
   # Po zmene kódu alebo data/hidden.json sa stránka len znova zostaví (bez kontroly a e-mailov).
