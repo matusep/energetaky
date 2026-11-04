@@ -49,7 +49,7 @@ Skopíruj jej `"id"` z [data/deals.json](data/deals.json) do [data/hidden.json](
 
 - Číta sa len verejný obsah, ktorý robots.txt nezakazuje. Program sa predstavuje ako `AkcnaPlechovkaBot/1.0` s kontaktom.
 - Kontrola beží 2× denne. **Nič sa neobchádza:** pri CAPTCHA, 403 alebo 429 sa kontrola obchodu zastaví a v logu Actions je chyba.
-- Pri akciách z PDF letákov (BILLA, COOP Jednota) sa fotka produktu vytiahne priamo z letáku: najbližší farebný obrázok pri názve ([src/sources/pdfImages.js](src/sources/pdfImages.js)). Kde sa nenájde, ukáže sa ilustračný obrázok.
+- Pri akciách z PDF letákov (BILLA, COOP Jednota) sa fotka produktu vytiahne priamo z letáku: BILLA má produkty v dlaždiciach, berie sa najväčší farebný obrázok z dlaždice s názvom; COOP dlaždice nemá, pri sirupoch sa berie farebný obrázok tesne pri názve a energeťáky ukážu ilustračnú fotku značky ([src/sources/pdfImages.js](src/sources/pdfImages.js)). Kde sa fotka nenájde, ukáže sa ilustračný obrázok.
 - Z letákov sa ukladajú len fakty (produkt, cena, platnosť) s odkazom na originál, nie texty letákov.
 - Pri akcii z Kauflandu a Lidla sa stiahne fotka produktu z ich verejnej ponuky do `data/img/` a zmaže sa spolu s akciou ([src/images.js](src/images.js)). BILLA fotky neposiela, tam stránka ukáže ilustračnú fotku klasickej plechovky značky ([public/img/cans/](public/img/cans/)).
 

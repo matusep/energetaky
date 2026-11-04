@@ -1,12 +1,27 @@
 import { OPS, Util } from 'pdfjs-dist/legacy/build/pdf.mjs';
 
 // Fotky produktov z PDF letákov (BILLA, COOP Jednota): v PDF sú to samostatné vložené obrázky,
-// preto netreba orezávať stránku – stačí nájsť obrázok najbližšie k názvu produktu a vytiahnuť ho.
+// preto netreba orezávať stránku – stačí nájsť ten pravý a vytiahnuť ho. Keď si nie sme istí, nevrátime nič:
+// ilustračná fotka je lepšia než cudzí produkt.
 
-/** Všetky obrázky na stránke s ich polohou v súradniciach PDF (y rastie nahor). */
-export async function pageImages(page) {
+const FILLS = new Set([OPS.fill, OPS.eoFill, OPS.fillStroke, OPS.eoFillStroke]);
+
+/** Obdĺžnik opísaný bodom (x0, y0), (x1, y1) po prenesení maticou na stránku. */
+function bounds(ctm, x0, y0, x1, y1) {
+  const xs = [];
+  const ys = [];
+  for (const [x, y] of [[x0, y0], [x1, y0], [x0, y1], [x1, y1]]) {
+    xs.push(ctm[0] * x + ctm[2] * y + ctm[4]);
+    ys.push(ctm[1] * x + ctm[3] * y + ctm[5]);
+  }
+  return { x0: Math.min(...xs), x1: Math.max(...xs), y0: Math.min(...ys), y1: Math.max(...ys) };
+}
+
+/** Obrázky a vyplnené plochy (kandidáti na dlaždice) na stránke v súradniciach PDF (y rastie nahor). */
+export async function pageLayout(page) {
   const { fnArray, argsArray } = await page.getOperatorList();
   const images = [];
+  const fills = [];
   let ctm = [1, 0, 0, 1, 0, 0];
   const stack = [];
   for (let i = 0; i < fnArray.length; i++) {
@@ -19,43 +34,54 @@ export async function pageImages(page) {
       stack.push(ctm);
       if (Array.isArray(args[0]) && args[0].length === 6) ctm = Util.transform(ctm, args[0]);
     } else if (fn === OPS.paintFormXObjectEnd) ctm = stack.pop() ?? ctm;
-    else if (fn === OPS.paintImageXObject) {
+    else if (fn === OPS.constructPath) {
+      const [op, , box] = args;
+      if (FILLS.has(op) && box) fills.push(bounds(ctm, box[0], box[1], box[2], box[3]));
+    } else if (fn === OPS.paintImageXObject) {
       // Obrázok sa kreslí do jednotkového štvorca, ktorý matica natiahne na stránku.
-      const xs = [];
-      const ys = [];
-      for (const [x, y] of [[0, 0], [1, 0], [0, 1], [1, 1]]) {
-        xs.push(ctm[0] * x + ctm[2] * y + ctm[4]);
-        ys.push(ctm[1] * x + ctm[3] * y + ctm[5]);
-      }
-      images.push({ name: args[0], x0: Math.min(...xs), x1: Math.max(...xs), y0: Math.min(...ys), y1: Math.max(...ys) });
+      images.push({ name: args[0], ...bounds(ctm, 0, 0, 1, 1) });
     }
   }
-  return images;
+  const { width, height } = page.getViewport({ scale: 1 });
+  return { images, fills, pageArea: width * height };
+}
+
+const areaOf = (box) => (box.x1 - box.x0) * (box.y1 - box.y0);
+const holds = (box, x, y) => x >= box.x0 && x <= box.x1 && y >= box.y0 && y <= box.y1;
+
+/** Najmenšia dlaždica okolo bodu (x, y). Menšie plochy sú nálepky a tiene, väčšie pozadie stránky. */
+function tileAt({ fills, pageArea }, x, y) {
+  return fills
+    .filter((box) => holds(box, x, y) && areaOf(box) > pageArea * 0.04 && areaOf(box) < pageArea * 0.6)
+    .sort((a, b) => areaOf(a) - areaOf(b))[0];
 }
 
 /**
- * Obrázky pri dlaždici zoradené od najbližšieho k bodu (x, y) v okruhu `radius`.
- * Vylúči pozadia cez celú stránku a drobnosti (logá, ikonky).
+ * BILLA: produkty sú v dlaždiciach, fotka je najväčší farebný obrázok z dlaždice s názvom na (x, y). Najbližší
+ * obrázok by bola fotka zo susednej dlaždice alebo maskot.
  */
-function nearImages(images, { x, y, radius, pageArea }) {
-  return images
-    .map((img) => {
-      const area = (img.x1 - img.x0) * (img.y1 - img.y0);
-      const dx = Math.max(img.x0 - x, 0, x - img.x1);
-      const dy = Math.max(img.y0 - y, 0, y - img.y1);
-      return { ...img, area, dist: Math.hypot(dx, dy) };
-    })
-    .filter((img) => img.area > 2500 && img.area < pageArea * 0.2 && img.dist < radius)
-    .sort((a, b) => a.dist - b.dist || b.area - a.area);
+export async function tilePhoto(doc, page, layout, { x, y }) {
+  const tile = tileAt(layout, x, y);
+  if (!tile) return null;
+  const inTile = layout.images
+    .filter((img) => holds(tile, (img.x0 + img.x1) / 2, (img.y0 + img.y1) / 2) && areaOf(img) > 2500)
+    .sort((a, b) => areaOf(b) - areaOf(a));
+  return firstColourful(doc, page, inTile);
 }
 
-/**
- * Fotka produktu pri názve (x, y) ako WebP, alebo null. Prvý farebný obrázok v okolí – čiernobiele sú tiene,
- * masky a výkričníky, nie produkt.
- */
-export async function productPhoto(doc, page, images, near) {
+/** COOP Jednota: dlaždice nemá, fotka stojí hneď pri názve. Ďalej od neho už býva susedný produkt. */
+export async function nearestPhoto(doc, page, { images, pageArea }, { x, y }) {
+  const near = images
+    .map((img) => ({ ...img, dist: Math.hypot(Math.max(img.x0 - x, 0, x - img.x1), Math.max(img.y0 - y, 0, y - img.y1)) }))
+    .filter((img) => img.dist < 30 && areaOf(img) > 6000 && areaOf(img) < pageArea * 0.2)
+    .sort((a, b) => a.dist - b.dist || areaOf(b) - areaOf(a));
+  return firstColourful(doc, page, near);
+}
+
+/** Prvý farebný obrázok zo zoznamu ako WebP, alebo null. Čiernobiele sú tiene, masky a výkričníky, nie produkt. */
+async function firstColourful(doc, page, images) {
   const tried = new Set();
-  for (const img of nearImages(images, near)) {
+  for (const img of images) {
     if (tried.has(img.name)) continue;
     tried.add(img.name);
     const webp = await imageWebp(doc, page, img.name);

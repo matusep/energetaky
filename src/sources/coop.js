@@ -2,7 +2,7 @@ import crypto from 'node:crypto';
 import { getDocument } from 'pdfjs-dist/legacy/build/pdf.mjs';
 import { detectProduct, SYRUP } from '../brands.js';
 import { fetchText, fetchPolite } from './http.js';
-import { pageImages, productPhoto } from './pdfImages.js';
+import { pageLayout, nearestPhoto } from './pdfImages.js';
 import { saveImage } from '../images.js';
 
 export const COOP_LEAFLETS = 'https://www.coop.sk/letaky';
@@ -86,8 +86,7 @@ export async function parseCoopPdf(data, { validFrom, validTo, pdfUrl, sourceUrl
     const items = (await page.getTextContent()).items
       .filter((i) => i.str?.trim())
       .map((i) => ({ str: i.str.trim(), x: i.transform[4], y: i.transform[5], size: Math.abs(i.transform[3]) }));
-    const { width, height } = page.getViewport({ scale: 1 });
-    let images = null; // obrázky stránky načítame, až keď na nej nájdeme akciu
+    let layout = null; // obrázky stránky načítame, až keď na nej nájdeme akciu
 
     for (const anchor of items) {
       const brand = detectProduct(anchor.str);
@@ -126,10 +125,10 @@ export async function parseCoopPdf(data, { validFrom, validTo, pdfUrl, sourceUrl
       const pct = pctItem ? Number(pctItem.str.replace(/\D/g, '')) : null;
 
       const externalId = `coop:${pdfId}:${p}:${brand}:${price}`;
-      // Fotka produktu priamo z letáku: farebný obrázok najbližšie k názvu.
-      images ??= await pageImages(page);
-      const photo = await productPhoto(doc, page, images, { x: anchor.x, y: anchor.y, radius: 140, pageArea: width * height });
-      if (photo) saveImage(externalId, photo, 'webp');
+      // Sirup nemá vlastnú fotku, tak ju berieme z letáku. Energeťáky ukážu istú fotku značky: v Coope sa pri nich
+      // z letáku trafilo aj pivo.
+      layout ??= await pageLayout(page);
+      saveImage(externalId, brand === SYRUP ? await nearestPhoto(doc, page, layout, anchor) : null, 'webp');
 
       deals.push({
         externalId,

@@ -26,4 +26,4 @@ export function detectProduct(text) {
 }
 
 /** Meno na zobrazenie: „Red Bull“, pri sirupe prvá časť názvu produktu („Caprio plus Sirup s vitamínmi“). */
-export const productName = (deal) => BRANDS[deal.brand]?.name ?? deal.product.split(',')[0];
+export const productName = (deal) => BRANDS[deal.brand]?.name ?? deal.product.split(', ')[0];

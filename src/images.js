@@ -12,11 +12,11 @@ function extension(buffer) {
   return null;
 }
 
-/** Fotku vytiahnutú priamo z PDF letáku (BILLA, COOP Jednota) uloží k akcii; zvyšok vybaví `syncImages`. */
+/** Fotku vytiahnutú priamo z PDF letáku (BILLA, COOP Jednota) uloží k akcii, bez fotky zmaže starú; zvyšok vybaví `syncImages`. */
 export function saveImage(id, buffer, ext) {
   fs.mkdirSync(dir, { recursive: true });
   for (const f of fs.readdirSync(dir)) if (f.replace(/\.[a-z]+$/, '') === baseName(id)) fs.rmSync(new URL(f, dir));
-  fs.writeFileSync(new URL(`${baseName(id)}.${ext}`, dir), buffer);
+  if (buffer) fs.writeFileSync(new URL(`${baseName(id)}.${ext}`, dir), buffer);
 }
 
 /** Doplní akciám pole `image` (názov súboru v data/img/), stiahne chýbajúce fotky a zmaže nepoužité. */

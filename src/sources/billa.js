@@ -2,7 +2,7 @@ import crypto from 'node:crypto';
 import { getDocument } from 'pdfjs-dist/legacy/build/pdf.mjs';
 import { detectProduct, SYRUP } from '../brands.js';
 import { fetchText, fetchPolite } from './http.js';
-import { pageImages, productPhoto } from './pdfImages.js';
+import { pageLayout, tilePhoto } from './pdfImages.js';
 import { saveImage } from '../images.js';
 
 export const BILLA_PAGE = 'https://www.billa.sk/letaky-a-akcie/aktualny-letak';
@@ -55,8 +55,7 @@ export async function parseBillaPdf(data, { validFrom, validTo, pdfKey }) {
     const items = (await page.getTextContent()).items
       .filter((i) => i.str?.trim())
       .map((i) => ({ str: i.str.trim(), x: i.transform[4], y: i.transform[5] }));
-    const { width, height } = page.getViewport({ scale: 1 });
-    let images = null; // obrázky stránky načítame, až keď na nej nájdeme akciu
+    let layout = null; // obrázky stránky načítame, až keď na nej nájdeme akciu
 
     const usedDiscounts = new Set();
     for (const anchor of items) {
@@ -133,10 +132,9 @@ export async function parseBillaPdf(data, { validFrom, validTo, pdfKey }) {
       if (!pairs.length && estimate) notes.push('cena vypočítaná zo zľavy');
 
       const externalId = `billa:${pdfId}:${p}:${brand}:${price}`;
-      // Fotka produktu priamo z letáku: farebný obrázok najbližšie k názvu.
-      images ??= await pageImages(page);
-      const photo = await productPhoto(doc, page, images, { x: anchor.x, y: anchor.y, radius: 140, pageArea: width * height });
-      if (photo) saveImage(externalId, photo, 'webp');
+      // Fotka produktu priamo z letáku, z dlaždice s jeho názvom.
+      layout ??= await pageLayout(page);
+      saveImage(externalId, await tilePhoto(doc, page, layout, anchor), 'webp');
 
       deals.push({
         externalId,
