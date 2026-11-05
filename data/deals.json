@@ -1,36 +1,5 @@
 [
   {
-    "id": "coop:88abb700a3:11:sirup:159",
-    "store": "coop",
-    "brand": "sirup",
-    "product": "Zlatá Studňa Multivitamín sirup 0,7 l",
-    "priceCents": 159,
-    "regularPriceCents": null,
-    "validFrom": "2026-10-29",
-    "validTo": "2026-11-04",
-    "note": "",
-    "sourceUrl": "https://www.coop.sk/letaky/potraviny-supermarket-a-tempo-43-2026",
-    "firstSeen": "2026-11-02T21:17:16.933Z",
-    "notifiedAt": null,
-    "image": "coop-88abb700a3-11-sirup-159.webp"
-  },
-  {
-    "id": "kaufland:20261029000000.20860154.SK.1020.0000017729",
-    "store": "kaufland",
-    "brand": "sirup",
-    "product": "CAPRIO plus Sirup s vitamínmi, 0,7 l",
-    "priceCents": 199,
-    "regularPriceCents": null,
-    "validFrom": "2026-10-29",
-    "validTo": "2026-11-04",
-    "note": "Cena s Kaufland XTRA, s Kaufland Card 0,99 €",
-    "sourceUrl": "https://predajne.kaufland.sk/aktualna-ponuka/letak.html",
-    "imageUrl": "https://kaufland.media.schwarz/is/image/schwarz/20860154_P",
-    "firstSeen": "2026-11-02T20:54:13.479Z",
-    "notifiedAt": null,
-    "image": "kaufland-20261029000000-20860154-SK-1020-0000017729.jpg"
-  },
-  {
     "id": "billa:7105a2986c:19:hell:69",
     "store": "billa",
     "brand": "hell",
