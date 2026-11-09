@@ -1,7 +1,7 @@
 {
   "billaPdf": "https://view.publitas.com/64070/3497101/pdfs/0fc72a8a-b196-49af-96b9-136eaec2ec2d.pdf",
   "lastCheck": {
-    "at": "2026-11-09T06:17:48.843Z",
+    "at": "2026-11-09T22:17:36.819Z",
     "kaufland": {
       "ok": true,
       "found": 2,
@@ -17,8 +17,9 @@
       "added": 0
     },
     "coop": {
-      "ok": false,
-      "error": "HTTP 502 pre https://indd.adobe.com/view/publication/590af435-30be-417f-b45a-b8e6ea296cb1/fyfz/publication-web-resources/pdf/IN4526.pdf"
+      "ok": true,
+      "found": 1,
+      "added": 1
     },
     "removed": 0,
     "images": {
@@ -38,7 +39,9 @@
   },
   "coopPdfs": [
     "https://www.coop.sk/buxus/docs/IN3526_final_small.pdf",
-    "https://indd.adobe.com/view/publication/276e79bf-1cfd-42e0-bae6-969b2bf8829d/iroi/publication-web-resources/pdf/TEMPO_0626_web.pdf"
+    "https://indd.adobe.com/view/publication/276e79bf-1cfd-42e0-bae6-969b2bf8829d/iroi/publication-web-resources/pdf/TEMPO_0626_web.pdf",
+    "https://indd.adobe.com/view/publication/590af435-30be-417f-b45a-b8e6ea296cb1/fyfz/publication-web-resources/pdf/IN4526.pdf",
+    "https://indd.adobe.com/view/publication/359d9b25-ca01-4ef7-b256-852b39c9fe68/1/publication-web-resources/pdf/TEMPO_0726.pdf"
   ],
   "pdfParser": 4
 }

@@ -90,5 +90,20 @@
     "firstSeen": "2026-11-03T12:49:09.961Z",
     "notifiedAt": null,
     "image": "kaufland-20261105000000-20962342-SK-1020-0000018067.jpg"
+  },
+  {
+    "id": "coop:558419c7fc:12:sirup:199",
+    "store": "coop",
+    "brand": "sirup",
+    "product": "Jupí sirup lesná zmes 0,7 l",
+    "priceCents": 199,
+    "regularPriceCents": null,
+    "validFrom": "2026-11-12",
+    "validTo": "2026-11-18",
+    "note": "",
+    "sourceUrl": "https://www.coop.sk/letaky/potraviny-supermarket-a-tempo-45-2026",
+    "firstSeen": "2026-11-09T22:17:36.819Z",
+    "notifiedAt": null,
+    "image": "coop-558419c7fc-12-sirup-199.webp"
   }
 ]
