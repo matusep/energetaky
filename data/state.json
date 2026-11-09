@@ -1,7 +1,7 @@
 {
   "billaPdf": "https://view.publitas.com/64070/3497101/pdfs/0fc72a8a-b196-49af-96b9-136eaec2ec2d.pdf",
   "lastCheck": {
-    "at": "2026-11-08T17:54:40.580Z",
+    "at": "2026-11-09T06:17:48.843Z",
     "kaufland": {
       "ok": true,
       "found": 2,
@@ -17,8 +17,8 @@
       "added": 0
     },
     "coop": {
-      "ok": true,
-      "skipped": true
+      "ok": false,
+      "error": "HTTP 502 pre https://indd.adobe.com/view/publication/590af435-30be-417f-b45a-b8e6ea296cb1/fyfz/publication-web-resources/pdf/IN4526.pdf"
     },
     "removed": 0,
     "images": {
