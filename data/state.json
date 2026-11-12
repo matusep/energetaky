@@ -1,10 +1,10 @@
 {
   "billaPdf": "https://view.publitas.com/64070/3512291/pdfs/7e9d757d-efee-4cb8-ad1c-986ef1b6f228.pdf",
   "lastCheck": {
-    "at": "2026-11-11T19:33:48.258Z",
+    "at": "2026-11-12T07:05:49.769Z",
     "kaufland": {
       "ok": true,
-      "found": 6,
+      "found": 4,
       "added": 0
     },
     "billa": {
@@ -20,10 +20,10 @@
       "ok": true,
       "skipped": true
     },
-    "removed": 0,
+    "removed": 3,
     "images": {
       "downloaded": 0,
-      "removed": 0,
+      "removed": 3,
       "failed": 0
     },
     "notify": "nič nové",
@@ -37,8 +37,6 @@
     "result": "chyba – Brevo POST /emailCampaigns: HTTP 400 {\"code\":\"invalid_parameter\",\"message\":\"There are no contacts associated with the given recipients info\"}\n"
   },
   "coopPdfs": [
-    "https://www.coop.sk/buxus/docs/IN3526_final_small.pdf",
-    "https://indd.adobe.com/view/publication/276e79bf-1cfd-42e0-bae6-969b2bf8829d/iroi/publication-web-resources/pdf/TEMPO_0626_web.pdf",
     "https://indd.adobe.com/view/publication/590af435-30be-417f-b45a-b8e6ea296cb1/fyfz/publication-web-resources/pdf/IN4526.pdf",
     "https://indd.adobe.com/view/publication/359d9b25-ca01-4ef7-b256-852b39c9fe68/1/publication-web-resources/pdf/TEMPO_0726.pdf"
   ],
