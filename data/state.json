@@ -1,7 +1,7 @@
 {
   "billaPdf": "https://view.publitas.com/64070/3512291/pdfs/7e9d757d-efee-4cb8-ad1c-986ef1b6f228.pdf",
   "lastCheck": {
-    "at": "2026-11-12T07:05:49.769Z",
+    "at": "2026-11-12T19:52:30.848Z",
     "kaufland": {
       "ok": true,
       "found": 4,
@@ -20,10 +20,10 @@
       "ok": true,
       "skipped": true
     },
-    "removed": 3,
+    "removed": 0,
     "images": {
       "downloaded": 0,
-      "removed": 3,
+      "removed": 0,
       "failed": 0
     },
     "notify": "nič nové",
