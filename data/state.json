@@ -1,7 +1,7 @@
 {
   "billaPdf": "https://view.publitas.com/64070/3512291/pdfs/7e9d757d-efee-4cb8-ad1c-986ef1b6f228.pdf",
   "lastCheck": {
-    "at": "2026-11-15T18:48:08.493Z",
+    "at": "2026-11-16T06:20:59.633Z",
     "kaufland": {
       "ok": true,
       "found": 4,
@@ -17,8 +17,8 @@
       "added": 0
     },
     "coop": {
-      "ok": true,
-      "skipped": true
+      "ok": false,
+      "error": "Súbor je príliš veľký (> 157286400 B)"
     },
     "removed": 0,
     "images": {
