@@ -135,6 +135,8 @@ a:hover > .arrow, button:hover > .arrow { transform: translateX(4px); }
 /* --- Karty akcií --- */
 .deals { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 290px), 1fr)); gap: 20px; }
 .deals--two { grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr)); }
+/* Karty rovnako veľké ako pri energeťákoch, aj keď je akcia len jedna alebo dve (zvyšné miesto v riadku zostane prázdne). */
+.deals--grid { grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr)); }
 .deal {
   display: flex; flex-direction: column;
   background: var(--surface); border-radius: var(--radius);
@@ -307,6 +309,12 @@ a:hover > .arrow, button:hover > .arrow { transform: translateX(4px); }
 .qa[open] .qa__icon::after { rotate: 0deg; }
 .qa::details-content { block-size: 0; overflow: clip; transition: block-size .5s var(--ease), content-visibility .5s allow-discrete; }
 .qa[open]::details-content { block-size: auto; }
+/* So skriptom (public/app.js) animuje otváranie on sám, preto CSS animáciu vypíname – inak by sa robili dve naraz. */
+html.js .qa::details-content { block-size: auto; transition: none; }
+.qa__body.is-animating { overflow: hidden; }
+/* Pri zatváraní sa ikona vráti hneď, nie až keď odpoveď zmizne. */
+.qa.is-closing .qa__icon { background: var(--surface); color: inherit; rotate: 0deg; }
+.qa.is-closing .qa__icon::after { rotate: 90deg; }
 .qa__body p { padding: 0 56px 28px 0; color: var(--muted); max-width: 62ch; }
 
 /* --- Pätička --- */

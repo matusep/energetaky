@@ -108,6 +108,68 @@
     el.lastChild.textContent = ' Letáky čoskoro znova skontrolujeme.';
   }
 
+  /**
+   * Časté otázky: plynulé otváranie a zatváranie. Pri prepnutí z jednej otázky na druhú sa stará odpoveď
+   * zatvára, kým sa nová otvára, a celá stránka pod nimi sa posúva plynule, nie skokom.
+   * Skript to robí sám (aj pre prehliadače, ktoré CSS animáciu <details> nepodporujú); atribút `name`
+   * (zatvorenie ostatných) preto odoberie a stará sa o to sám.
+   */
+  function accordion() {
+    const items = [...document.querySelectorAll('details.qa')];
+    const DURATION = 450;
+    const EASING = 'cubic-bezier(.22, 1, .36, 1)';
+    const isClosing = (item) => item.classList.contains('is-closing');
+
+    function run(item, from, to, done) {
+      const body = item.querySelector('.qa__body');
+      if (item._anim) {
+        item._anim.onfinish = null;
+        item._anim.cancel();
+      }
+      body.classList.add('is-animating');
+      const anim = body.animate({ height: [`${from}px`, `${to}px`] }, { duration: DURATION, easing: EASING });
+      item._anim = anim;
+      anim.onfinish = () => {
+        item._anim = null;
+        body.classList.remove('is-animating');
+        done?.();
+      };
+    }
+
+    function open(item) {
+      const body = item.querySelector('.qa__body');
+      const from = item._anim ? body.getBoundingClientRect().height : 0;
+      item.classList.remove('is-closing');
+      if (item._anim) {
+        item._anim.onfinish = null;
+        item._anim.cancel();
+        item._anim = null;
+      }
+      item.open = true;
+      run(item, from, body.offsetHeight);
+    }
+
+    function close(item) {
+      const body = item.querySelector('.qa__body');
+      const from = body.getBoundingClientRect().height;
+      item.classList.add('is-closing');
+      run(item, from, 0, () => {
+        item.open = false;
+        item.classList.remove('is-closing');
+      });
+    }
+
+    for (const item of items) {
+      item.removeAttribute('name');
+      item.querySelector('summary').addEventListener('click', (ev) => {
+        ev.preventDefault();
+        if (item.open && !isClosing(item)) return close(item);
+        for (const other of items) if (other !== item && other.open && !isClosing(other)) close(other);
+        open(item);
+      });
+    }
+  }
+
   function init() {
     document.querySelectorAll('time[data-relative]').forEach(relative);
     document.querySelectorAll('.deal__when[data-to]').forEach(dealTime);
@@ -116,6 +178,7 @@
       document.querySelectorAll('.reveal, [data-split]').forEach(enter);
       return;
     }
+    accordion();
     document.querySelectorAll('[data-split]').forEach(split);
     const io = new IntersectionObserver((entries) => {
       for (const entry of entries) {
