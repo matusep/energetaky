@@ -38,7 +38,7 @@ Skopíruj jej `"id"` z [data/deals.json](data/deals.json) do [data/hidden.json](
 
 - Ak kontrola naraz nájde viac ako 10 nových akcií, e-maily sa nepošlú. Pravdepodobne ide o chybu, skontroluj `data/deals.json`.
 - Billa cena sa overuje voči bežnej cene a percentu zľavy (±10 %). Ak nesedí, akcia sa nepridá.
-- Značky majú prísne vzory, aby napr. „Hellmann´s“ nebol Hell ([src/brands.js](src/brands.js)). Semtex a sirupy majú vlastné ilustračné fotky ([public/img/cans/](public/img/cans/)); Semtex je nakreslená plechovka bez loga, kým nepríde akcia s reálnou fotkou z obchodu.
+- Značky majú prísne vzory, aby napr. „Hellmann´s“ nebol Hell ([src/brands.js](src/brands.js)). Semtex a sirupy majú vlastné ilustračné fotky ([public/img/cans/](public/img/cans/)); kým nepríde akcia s reálnou fotkou z obchodu, ukáže sa tá.
 - Bez `BREVO_API_KEY` beží kontrola naostro, ale e-maily nepošle a len vypíše, čo by poslala.
 
 ### E-maily a zdieľanie

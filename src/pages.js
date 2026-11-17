@@ -226,8 +226,9 @@ const names = (items) => Object.entries(items).map(([key, b]) => [key, b.name]);
 const ENERGY_IDLE = names(BRANDS);
 const SYRUP_IDLE = names(SYRUP_BRANDS);
 
-function deals(list, idle = ENERGY_IDLE) {
-  const cls = list.length === 1 ? ' deals--one' : list.length === 2 ? ' deals--two' : '';
+function deals(list, idle = ENERGY_IDLE, { uniform = false } = {}) {
+  // `uniform`: karty majú vždy rovnakú veľkosť, nech je akcií koľko chce (sirupy na /samo).
+  const cls = uniform ? ' deals--grid' : list.length === 1 ? ' deals--one' : list.length === 2 ? ' deals--two' : '';
   return `<div class="deals${cls}">${list.length ? list.map(dealCard).join('') : idle.map(brandCard).join('')}</div>`;
 }
 
@@ -351,7 +352,7 @@ export function samoPage({ deals: list, lastCheck }) {
       <h2 data-split>Sirupy v akcii</h2>
       <p class="live reveal"><span class="dot"></span><span>${list.length ? `${count} v ${e(stores)}` : 'Zlatá studňa ani Caprio teraz nie sú v akcii'}${lastCheck ? ` · skontrolované ${checkedAt(lastCheck)}` : ''}</span></p>
     </header>
-    ${deals(list, SYRUP_IDLE)}
+    ${deals(list, SYRUP_IDLE, { uniform: true })}
   </section>
 
   ${signup({ samo: true })}`,
@@ -526,7 +527,7 @@ export function termsPage() {
 
   <h2>2. Nie sme oficiálna stránka</h2>
   <p>Služba nie je prepojená so spoločnosťami Monster Energy Company, Red Bull GmbH, HELL ENERGY Magyarország Kft., výrobcami značiek Semtex, Zlatá studňa a Caprio, Kaufland Slovenská republika v.o.s., BILLA s.r.o., Lidl Slovenská republika, v.o.s. ani COOP Jednota Slovensko, spotrebné družstvo, nie je nimi sponzorovaná, podporovaná ani schválená. Uvedené názvy sú ochranné známky ich vlastníkov. Používame ich výlučne na pomenovanie produktov a obchodov, o ktorých informujeme, a ich logá ani grafiku nepoužívame na označenie tejto služby.</p>
-  <p>Pri akcii zobrazujeme fotografiu produktu, aby bolo jasné, o ktorý výrobok ide: pri Kauflande a Lidli fotografiu z ich verejnej ponuky, inak ilustračný obrázok (fotografiu bežnej plechovky alebo fľaše danej značky z verejnej ponuky obchodu alebo výrobcu, pri Semtexe nakreslenú plechovku), označený ako ilustračný. Fotografie plechoviek v úvode stránky sú z Wikimedia Commons pod licenciou CC BY-SA 4.0 s uvedením autora v pätičke. Z letákov inak uvádzame len stručné faktické údaje (názov produktu, cenu, platnosť) s odkazom na zdroj.</p>
+  <p>Pri akcii zobrazujeme fotografiu produktu, aby bolo jasné, o ktorý výrobok ide: pri Kauflande a Lidli fotografiu z ich verejnej ponuky, inak ilustračný obrázok (fotografiu bežnej plechovky alebo fľaše danej značky z verejnej ponuky obchodu alebo výrobcu), označený ako ilustračný. Fotografie plechoviek v úvode stránky sú z Wikimedia Commons pod licenciou CC BY-SA 4.0 s uvedením autora v pätičke. Z letákov inak uvádzame len stručné faktické údaje (názov produktu, cenu, platnosť) s odkazom na zdroj.</p>
 
   <h2>3. Ako zisťujeme akcie a ich presnosť</h2>
   <p>Údaje zisťuje program automaticky z verejne dostupných stránok a letákov obchodov, dvakrát denne, v súlade so súbormi robots.txt a bez obchádzania akýchkoľvek technických opatrení. Automatické čítanie letákov sa môže pomýliť, akcia sa môže líšiť podľa predajne alebo môže byť tovar vypredaný. Záväzné sú vždy informácie obchodu (leták, cenovka, pokladnica). Za rozhodnutia urobené na základe údajov zo služby nezodpovedáme v rozsahu, v akom to právne predpisy dovoľujú.</p>
