@@ -6,7 +6,7 @@ import { today } from './format.js';
 import * as store from './store.js';
 import * as pages from './pages.js';
 import { imageDir } from './images.js';
-import { isSyrup } from './brands.js';
+import { isSyrup, isTracked } from './brands.js';
 
 const root = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const dist = path.join(root, 'dist');
@@ -16,9 +16,9 @@ export function build() {
   const hidden = store.loadHidden();
   const all = store
     .loadDeals()
-    .filter((d) => !hidden.has(d.id) && d.validTo >= today())
+    .filter((d) => !hidden.has(d.id) && d.validTo >= today() && isTracked(d))
     .sort((a, b) => a.validFrom.localeCompare(b.validFrom) || a.priceCents - b.priceCents);
-  // Energeťáky sú na úvodnej stránke, sirupy na /samo.
+  // Energeťáky sú na úvodnej stránke, sirupy (Zlatá studňa, Caprio) na /samo.
   const deals = all.filter((d) => !isSyrup(d));
   const syrups = all.filter(isSyrup);
   const { lastCheck } = store.loadState();

@@ -244,6 +244,12 @@ a:hover > .arrow, button:hover > .arrow { transform: translateX(4px); }
 .signup__steps li::before { content: counter(s); display: grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: var(--dark-text); color: var(--accent); font-size: 0.75rem; }
 .signup__form { display: grid; gap: 28px; }
 .picks { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 0; padding: 0; border: 0; }
+.picks--2 { grid-template-columns: repeat(2, 1fr); }
+.picks--4 { grid-template-columns: repeat(4, 1fr); }
+/* Značka, ktorej odber ešte nie je spustený: vidieť ju, ale nedá sa vybrať. */
+.pick--soon { cursor: default; }
+.pick--soon .pick__card img { filter: grayscale(1); opacity: .35; }
+.pick__soon { font-size: .75rem; font-weight: 700; color: #6b6b72; letter-spacing: .02em; }
 .pick { cursor: pointer; }
 .pick input { position: absolute; opacity: 0; pointer-events: none; }
 .pick__card {
@@ -358,6 +364,7 @@ a:hover > .arrow, button:hover > .arrow { transform: translateX(4px); }
       .bar { flex-wrap: wrap; gap: 12px 20px; }
   .bar__nav { order: 3; width: 100%; gap: 20px; font-size: var(--step-small); }
   .picks { gap: 8px; }
+  .picks--4 { grid-template-columns: repeat(2, 1fr); }
   .pick__card { padding: 18px 6px 14px; }
   .email { flex-direction: column; border-radius: 24px; padding: 8px; }
   .email input { min-height: 48px; }

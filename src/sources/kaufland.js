@@ -56,8 +56,11 @@ const toCents = (s) => (s ? Math.round(Number(String(s).replace(/\s/g, '').repla
 
 function toDeal(o) {
   // Značku hľadáme len v názve a podnázve, nie v popise (tam býva „vhodné k …“ a pod.).
-  const brand = detectProduct(`${o.title ?? ''} ${o.subtitle ?? ''}`);
-  if (!brand || !o.dateFrom || !o.dateTo || typeof o.price !== 'number') return null;
+  const text = `${o.title ?? ''} ${o.subtitle ?? ''} ${o.unit ?? ''}`;
+  const brand = detectProduct(text);
+  // Nápoj má v názve „energetický nápoj“/„sirup“ alebo objem v litroch – tak vylúčime hračky „Monster Truck“ a pod.
+  if (!brand || !/energ|nápoj|sirup|\d\s*(ml|l)\b/i.test(text)) return null;
+  if (!o.dateFrom || !o.dateTo || typeof o.price !== 'number') return null;
 
   const notes = [];
   const priceNote = String(o.detailTitle ?? '').split('\n')[0];

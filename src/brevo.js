@@ -1,5 +1,5 @@
 import { config, STORES, brevoApiKey } from './config.js';
-import { BRANDS } from './brands.js';
+import { LISTS, listKey, productName } from './brands.js';
 import { escapeHtml, formatPrice, shortDate, discountPercent, storeLocative, today } from './format.js';
 
 // Odberatelia sú v Brevo zoznamoch (jeden zoznam = jedna značka). Brevo rieši potvrdenie odberu aj odhlásenie,
@@ -18,9 +18,9 @@ async function brevo(path, { method = 'POST', body } = {}) {
 }
 
 const legalFooter =
-  'Táto služba nie je prepojená so spoločnosťami Monster Energy, Red Bull, HELL ENERGY, Kaufland, BILLA, Lidl ani COOP Jednota. ' +
+  'Táto služba nie je prepojená so spoločnosťami Monster Energy, Red Bull, HELL ENERGY, Semtex, Zlatá studňa, Caprio, Kaufland, BILLA, Lidl ani COOP Jednota. ' +
   'Ceny zisťujeme automaticky z letákov a môžu obsahovať chyby – záväzný je leták obchodu. ' +
-  'Vysoký obsah kofeínu. Nevhodné pre deti, tehotné a dojčiace ženy.';
+  'Energetické nápoje: vysoký obsah kofeínu, nevhodné pre deti, tehotné a dojčiace ženy.';
 
 // E-maily vyzerajú ako stránka, ale sú z tabuliek a vložených štýlov – inak ich Outlook a Gmail rozbijú.
 // Obrázky musia mať plnú adresu na stránke a byť v PNG/JPG (WebP Outlook nezobrazí).
@@ -40,7 +40,7 @@ function dealHtml(deal) {
   const [bg, fg] = STORE_COLORS[deal.store] ?? ['#ffffff', '#000000'];
   const e = escapeHtml;
   // Fotka produktu z obchodu, inak ilustračná plechovka značky.
-  const image = deal.image ? abs(`/img/deals/${deal.image}`) : abs(`/img/email/${deal.brand}.png`);
+  const image = deal.image ? abs(`/img/deals/${deal.image}`) : abs(`/img/email/${listKey(deal)}.png`);
   return `
   <tr><td style="padding:0 0 16px">
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#151517;border-radius:24px">
@@ -71,7 +71,7 @@ function dealHtml(deal) {
 export function campaignHtml(heading, deals, intro = '') {
   const e = escapeHtml;
   // Text, ktorý e-mailové programy ukážu v zozname správ hneď za predmetom.
-  const preview = deals.map((d) => `${BRANDS[d.brand]?.name} za ${formatPrice(d.priceCents)} v ${storeLocative(d.store)}`).join(', ');
+  const preview = deals.map((d) => `${productName(d)} za ${formatPrice(d.priceCents)} v ${storeLocative(d.store)}`).join(', ');
   return `<!doctype html>
 <html lang="sk"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><meta name="color-scheme" content="dark"><title>${e(heading)}</title></head>
 <body style="margin:0;padding:0;background:#0b0b0c">
@@ -132,11 +132,11 @@ async function sendCampaign({ name, listId, subject, html }) {
 export async function sendDealCampaigns(deals, { dryRun = false } = {}) {
   const sentIds = [];
   const errors = [];
-  const byBrand = Map.groupBy(deals, (d) => d.brand);
+  const byBrand = Map.groupBy(deals, listKey);
 
   for (const [brand, brandDeals] of byBrand) {
     const listId = Number(config.brevo.lists[brand]);
-    const brandName = BRANDS[brand].name;
+    const brandName = LISTS[brand]?.name ?? brand;
     const subject = subjectFor(brandName, brandDeals);
 
     if (dryRun || !listId) {
@@ -178,7 +178,7 @@ async function welcomeListId(brand, brandListId, state) {
   state.welcomeLists ??= {};
   if (state.welcomeLists[brand]) return state.welcomeLists[brand];
   const { folderId } = await brevo(`/contacts/lists/${brandListId}`, { method: 'GET' });
-  const { id } = await brevo('/contacts/lists', { body: { name: `Uvítanie – ${BRANDS[brand].name} (automaticky)`, folderId } });
+  const { id } = await brevo('/contacts/lists', { body: { name: `Uvítanie – ${LISTS[brand].name} (automaticky)`, folderId } });
   state.welcomeLists[brand] = id;
   return id;
 }
@@ -197,8 +197,8 @@ export async function welcomeNewSubscribers(announced, state) {
 
   for (const [brand, rawListId] of Object.entries(config.brevo.lists)) {
     const listId = Number(rawListId);
-    if (!listId) continue;
-    const brandName = BRANDS[brand].name;
+    if (!listId || !LISTS[brand]) continue;
+    const brandName = LISTS[brand].name;
 
     // Pomocný zoznam vyprázdnime až teraz – predošlá uvítacia kampaň je už dávno odoslaná.
     if (state.welcomeLists?.[brand]) {
@@ -210,7 +210,7 @@ export async function welcomeNewSubscribers(announced, state) {
 
     // Kontakty zoskupíme podľa toho, ktoré akcie im chýbajú (zvyčajne je to pre všetkých rovnaké).
     const groups = Map.groupBy(fresh, (c) =>
-      announced.filter((d) => d.brand === brand && Date.parse(d.notifiedAt) < Date.parse(c.createdAt)).map((d) => d.id).join('|'),
+      announced.filter((d) => listKey(d) === brand && Date.parse(d.notifiedAt) < Date.parse(c.createdAt)).map((d) => d.id).join('|'),
     );
     let sent = 0;
     for (const [key, contacts] of groups) {

@@ -1,6 +1,6 @@
 # Akčná plechovka ⚡
 
-Statická stránka, ktorá 2× denne automaticky prečíta letáky Kauflandu, Billy, Lidla a COOP Jednoty a pošle e-mail odberateľom, keď sú **Monster, Red Bull alebo Hell** v akcii. Na [/samo](https://energetaky.matusep.me/samo/) („Zľavy pre Samka“) ukazuje aj **sirupy** v akcii, tie len na stránke, bez e-mailov. Celé to beží zadarmo, bez servera:
+Statická stránka, ktorá 2× denne automaticky prečíta letáky Kauflandu, Billy, Lidla a COOP Jednoty a pošle e-mail odberateľom, keď sú **Monster, Red Bull, Hell alebo Semtex** v akcii. Na [/samo](https://energetaky.matusep.me/samo/) („Zľavy pre Samka“) ukazuje **sirupy Zlatá studňa a Caprio**, aj na ne sa dá prihlásiť odber e-mailom. Celé to beží zadarmo, bez servera:
 
 | Čo | Kde |
 |---|---|
@@ -16,11 +16,12 @@ Statická stránka, ktorá 2× denne automaticky prečíta letáky Kauflandu, Bi
    - **BILLA:** zo stránky [aktuálny leták](https://www.billa.sk/letaky-a-akcie/aktualny-letak) stiahne PDF (len do pamäte, na disk sa neukladá) a prečíta z neho ceny. Rovnaký leták sa druhýkrát nesťahuje.
    - **Lidl:** zo [sitemapy produktov](https://www.lidl.sk/p/export/SK/sk/product_sitemap.xml.gz) vyberie potraviny so značkou v názve a z ich stránok zoberie cenu, prečiarknutú cenu a platnosť ([src/sources/lidl.js](src/sources/lidl.js)). Akciu, ktorú Lidl dá len do PDF letáku bez stránky produktu, nezachytí.
    - **COOP Jednota:** z [letákov](https://www.coop.sk/letaky) (len celoslovenské, nie regionálne) stiahne PDF a cenu berie, len ak sedí s jednotkovou cenou za liter ([src/sources/coop.js](src/sources/coop.js)). Letáky, ktoré Coop zverejní len v prehliadači Adobe InDesign (indd.adobe.com), sa čítajú z PDF, ktoré ten prehliadač ponúka na stiahnutie.
-   - **Sirupy:** všetky produkty so slovom „sirup“ (okrem javorového, proti kašľu a pod., [src/brands.js](src/brands.js)) zo všetkých štyroch obchodov. Zlatá studňa (Samkova obľúbená) má na karte zlatú hviezdičku.
+   - **Sirupy:** len **Zlatá studňa** (Samkova obľúbená, má na karte zlatú hviezdičku) a **Caprio** zo všetkých štyroch obchodov ([src/brands.js](src/brands.js), `SYRUP_BRANDS`). Iný sirup sa zahodí.
+   - **Len energeťáky:** produkt so značkou, ktorý nie je nápoj (napr. hračka „Lupilo Monster Truck“ z Kauflandu), sa zahodí ([src/brands.js](src/brands.js), `NOT_DRINK`). Už uložené takéto akcie sa pri ďalšej kontrole aj pri zostavení stránky vyhodia.
    - Keď sa zmení, čo sa z PDF letákov číta, zvýš `PDF_PARSER` v [src/check.js](src/check.js) a už prečítané letáky sa prečítajú znova.
    - **Tesco** sa nedá: jeho weby automatický prístup blokujú (HTTP 403 aj na robots.txt) a obchádzať to nebudeme.
    - Akcie, ktorým skončila platnosť, sa hneď zmažú.
-2. Pre nové akcie pošle cez Brevo kampaň na zoznam danej značky.
+2. Pre nové akcie pošle cez Brevo kampaň na zoznam danej značky (Monster, Red Bull, Hell, Semtex, Zlatá studňa, Caprio).
 3. Uloží `data/` do repozitára a nasadí stránku z `dist/` na GitHub Pages.
 
 Po pushnutí kódu alebo zmene `data/hidden.json` sa stránka len znova zostaví, bez kontroly a bez e-mailov. Kontrolu hneď spustíš v záložke **Actions → Kontrola letákov a stránka → Run workflow**.
@@ -37,7 +38,7 @@ Skopíruj jej `"id"` z [data/deals.json](data/deals.json) do [data/hidden.json](
 
 - Ak kontrola naraz nájde viac ako 10 nových akcií, e-maily sa nepošlú. Pravdepodobne ide o chybu, skontroluj `data/deals.json`.
 - Billa cena sa overuje voči bežnej cene a percentu zľavy (±10 %). Ak nesedí, akcia sa nepridá.
-- Značky majú prísne vzory, aby napr. „Hellmann´s“ nebol Hell ([src/brands.js](src/brands.js)).
+- Značky majú prísne vzory, aby napr. „Hellmann´s“ nebol Hell ([src/brands.js](src/brands.js)). Semtex a sirupy majú vlastné ilustračné fotky ([public/img/cans/](public/img/cans/)); Semtex je nakreslená plechovka bez loga, kým nepríde akcia s reálnou fotkou z obchodu.
 - Bez `BREVO_API_KEY` beží kontrola naostro, ale e-maily nepošle a len vypíše, čo by poslala.
 
 ### E-maily a zdieľanie
@@ -56,10 +57,10 @@ Skopíruj jej `"id"` z [data/deals.json](data/deals.json) do [data/hidden.json](
 ## Nastavenie (raz)
 
 1. **Brevo:**
-   - Vytvor 3 zoznamy (Monster, Red Bull, Hell).
-   - Vytvor prihlasovací formulár s double opt-in a presmerovaniami na `https://energetaky.matusep.me/skontroluj-email/` a `/odber-aktivny/`.
+   - Vytvor zoznamy pre každú značku: Monster, Red Bull, Hell, **Semtex**, **Zlatá studňa**, **Caprio**.
+   - Vytvor prihlasovací formulár (alebo dva: energeťáky a sirupy) s double opt-in a presmerovaniami na `https://energetaky.matusep.me/skontroluj-email/` a `/odber-aktivny/`.
    - Vygeneruj API kľúč a v Security vypni blokovanie neznámych IP, lebo GitHub Actions majú zakaždým inú IP.
-2. **[site.config.json](site.config.json):** doplň `operatorName`, `brevo.formUrl` (adresa `action` z Brevo formulára) a ID zoznamov v `brevo.lists`.
+2. **[site.config.json](site.config.json):** doplň `operatorName`, `brevo.formUrl` (adresa `action` z Brevo formulára) a ID zoznamov v `brevo.lists` (`monster`, `redbull`, `hell`, `semtex`, `zlatastudna`, `caprio`). Značka s ID `0` je na stránke vidieť s nápisom „Čoskoro“, ale nedá sa vybrať. Formulár v Brevo musí mať všetky tieto zoznamy povolené, inak ich odoslanie ignoruje.
 3. **GitHub → Settings:**
    - **Secrets and variables → Actions:** pridaj secret `BREVO_API_KEY`.
    - **Pages:** Source = *GitHub Actions*, Custom domain = `energetaky.matusep.me`, zapni *Enforce HTTPS*.

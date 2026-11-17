@@ -1,5 +1,5 @@
 import { config, STORES } from './config.js';
-import { BRANDS, SYRUP, productName } from './brands.js';
+import { BRANDS, SYRUP, SYRUP_BRANDS, listKey, productName } from './brands.js';
 import { escapeHtml as e, formatPrice, formatDate, formatDateTime, shortDate, discountPercent, storeLocative, today } from './format.js';
 
 const HEALTH_NOTE = 'Vysoký obsah kofeínu. Nevhodné pre deti, tehotné a dojčiace ženy.';
@@ -33,7 +33,12 @@ const checkedAt = (iso) => `<time datetime="${e(iso)}" data-relative>${e(formatD
 
 const ARROW = '<svg class="arrow" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 
-const DESCRIPTION = 'Automaticky sledujeme letáky Kauflandu, Billy, Lidla a COOP Jednoty a pošleme ti e-mail, keď sú Monster, Red Bull alebo Hell v akcii.';
+const brandNames = (items) => Object.values(items).map((b) => b.name);
+/** „Monster, Red Bull, Hell alebo Semtex“ */
+const orJoin = (names) => `${names.slice(0, -1).join(', ')} alebo ${names.at(-1)}`;
+const ENERGY_NAMES = orJoin(brandNames(BRANDS));
+
+const DESCRIPTION = `Automaticky sledujeme letáky Kauflandu, Billy, Lidla a COOP Jednoty a pošleme ti e-mail, keď sú ${ENERGY_NAMES} v akcii.`;
 
 export function layout({ title, body, noindex = false, home = false, samo = false, lastCheck = null, share = DESCRIPTION, path = '/' }) {
   const fullTitle = title ? `${title} · ${config.siteName}` : `${config.siteName} – je tvoj energeťák v akcii?`;
@@ -84,13 +89,14 @@ function topbar() {
 }
 
 function footer(lastCheck, samo = false) {
+  const base = samo ? '/samo/' : '/';
   const credits = PHOTO_CREDITS.map((p) => `<a href="${p.page}">„${e(p.title)}“</a>`).join(', ');
   return `<footer class="footer">
     <div class="footer__top">
       <a class="footer__name" href="/">${e(config.siteName)}</a>
       <div class="footer__actions">
         ${samo
-          ? `<a class="btn" href="/">Energeťáky v akcii ${ARROW}</a>`
+          ? `<a class="btn" href="/samo/#odber">Chcem upozornenie ${ARROW}</a>`
           : `<a class="btn" href="/#odber">Chcem upozornenie ${ARROW}</a>`}
       </div>
     </div>
@@ -100,8 +106,8 @@ function footer(lastCheck, samo = false) {
     </div>
     <div class="footer__grid">
       <nav class="footer__links" aria-label="Odkazy v pätičke">
-        <a href="/#akcie">Aktuálne akcie</a>
-        <a href="/#odber">Odber upozornení</a>
+        <a href="${base}#akcie">Aktuálne akcie</a>
+        <a href="${base}#odber">Odber upozornení</a>
         <a href="/sukromie/">Ochrana súkromia</a>
         <a href="/podmienky/">Podmienky používania</a>
         ${samo
@@ -110,7 +116,7 @@ function footer(lastCheck, samo = false) {
         ${config.contactEmail ? `<a href="mailto:${e(config.contactEmail)}">${e(config.contactEmail)}</a>` : ''}
       </nav>
       <div class="footer__legal">
-        <p>Nezávislý neoficiálny projekt. Nie sme prepojení so spoločnosťami Monster Energy Company, Red Bull GmbH, HELL ENERGY Magyarország Kft., Kaufland, BILLA, Lidl ani COOP Jednota, nie sme nimi sponzorovaní ani schválení. Uvedené názvy sú ochranné známky ich vlastníkov a používame ich len na označenie produktov a obchodov.</p>
+        <p>Nezávislý neoficiálny projekt. Nie sme prepojení so spoločnosťami Monster Energy Company, Red Bull GmbH, HELL ENERGY Magyarország Kft., Semtex, Zlatá studňa, Caprio, Kaufland, BILLA, Lidl ani COOP Jednota, nie sme nimi sponzorovaní ani schválení. Uvedené názvy sú ochranné známky ich vlastníkov a používame ich len na označenie produktov a obchodov.</p>
         <p>Ceny zisťujeme automaticky z verejných letákov a môžu obsahovať chyby alebo sa líšiť podľa predajne. Záväzné sú vždy údaje v letáku a na predajni obchodu. ${HEALTH_NOTE}</p>
         <p>Letáky kontrolujeme dvakrát denne${lastCheck ? `, naposledy ${checkedAt(lastCheck)}` : ''}. Bez cookies a sledovania.</p>
         <p class="footer__credits">Fotky produktov pochádzajú z verejnej ponuky obchodov a výrobcov. Stena plechoviek v úvode: ${credits}, autor Oto Zapletal, <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.sk">CC BY-SA 4.0</a>, Wikimedia Commons, orezané. Písmo Schibsted Grotesk, SIL Open Font License.</p>
@@ -158,9 +164,11 @@ function when(deal) {
   return `Ešte ${days} ${days < 5 ? 'dni' : 'dní'} · ${until}`;
 }
 
-/** Ilustračný obrázok: plechovka značky, pri sirupe nakreslená fľaša. */
-function can(brand, size) {
-  const [file, alt] = brand === SYRUP ? ['sirup.svg', 'Ilustračný obrázok: fľaša sirupu'] : [`${brand}.webp`, `Plechovka ${BRANDS[brand]?.name ?? ''}`];
+/** Ilustračný obrázok: plechovka značky, pri sirupe fľaša značky (kľúč: „hell“, „semtex“, „caprio“ …; iný sirup = nakreslená fľaša). */
+function can(key, size) {
+  const [file, alt] = key === SYRUP
+    ? ['sirup.svg', 'Ilustračný obrázok: fľaša sirupu']
+    : [`${key}.webp`, `${SYRUP_BRANDS[key] ? 'Fľaša' : 'Plechovka'} ${(SYRUP_BRANDS[key] ?? BRANDS[key])?.name ?? ''}`];
   return `<img class="can ${size}" src="/img/cans/${e(file)}" alt="${e(alt)}" width="350" height="900" loading="lazy" decoding="async">`;
 }
 
@@ -173,7 +181,7 @@ function dealCard(deal, i) {
   const size = canSize(deal.product);
   const picture = deal.image
     ? `<img class="can can--photo ${size}" src="/img/deals/${e(deal.image)}" alt="${e(deal.product)}" loading="lazy" decoding="async">`
-    : can(deal.brand, size);
+    : can(listKey(deal), size);
   return `
     <article class="deal deal--${e(deal.store)} reveal" data-delay="${i}">
       <header class="deal__where">
@@ -204,7 +212,7 @@ function brandCard([key, name], i) {
   return `
     <article class="deal deal--idle reveal" data-delay="${i}">
       <div class="deal__stage" data-tilt>
-        ${can(key, 'can--m')}
+        ${can(key, SYRUP_BRANDS[key] ? 'can--xl' : 'can--m')}
         <span class="deal__floor" aria-hidden="true"></span>
       </div>
       <div class="deal__body">
@@ -214,7 +222,9 @@ function brandCard([key, name], i) {
     </article>`;
 }
 
-const ENERGY_IDLE = Object.entries(BRANDS).map(([key, b]) => [key, b.name]);
+const names = (items) => Object.entries(items).map(([key, b]) => [key, b.name]);
+const ENERGY_IDLE = names(BRANDS);
+const SYRUP_IDLE = names(SYRUP_BRANDS);
 
 function deals(list, idle = ENERGY_IDLE) {
   const cls = list.length === 1 ? ' deals--one' : list.length === 2 ? ' deals--two' : '';
@@ -269,7 +279,7 @@ export function homePage({ deals: list, lastCheck }) {
   return layout({
     home: true,
     lastCheck,
-    share: `${answerParts(list).join(' ')} Upozorníme ťa e-mailom, keď je Monster, Red Bull alebo Hell v akcii v Kauflande, Bille, Lidli alebo COOP Jednote.`,
+    share: `${answerParts(list).join(' ')} Upozorníme ťa e-mailom, keď je ${ENERGY_NAMES} v akcii v Kauflande, Bille, Lidli alebo COOP Jednote.`,
     body: `
   <section class="hero">
     ${wall()}
@@ -285,7 +295,7 @@ export function homePage({ deals: list, lastCheck }) {
   <section class="section" id="akcie">
     <header class="section__head">
       <h2 data-split>V akcii práve teraz</h2>
-      <p class="live reveal"><span class="dot"></span><span>${list.length ? `${count} v ${e(stores)}` : 'Monster, Red Bull ani Hell teraz nie sú v akcii'}${lastCheck ? ` · skontrolované ${checkedAt(lastCheck)}` : ''}</span></p>
+      <p class="live reveal"><span class="dot"></span><span>${list.length ? `${count} v ${e(stores)}` : `${orJoin(brandNames(BRANDS)).replace(' alebo ', ' ani ')} teraz nie sú v akcii`}${lastCheck ? ` · skontrolované ${checkedAt(lastCheck)}` : ''}</span></p>
     </header>
     ${deals(list)}
   </section>
@@ -308,10 +318,12 @@ export function homePage({ deals: list, lastCheck }) {
   });
 }
 
-// Na /samo sa e-maily neposielajú, preto bez sľubu „napíšeme ti“.
-const SAMO_NOTHING = 'Letáky kontrolujeme dvakrát denne, pozri sa sem znova.';
+// Sľub „napíšeme ti“ dáme, až keď sú zoznamy sirupov v Brevo nastavené.
+const SAMO_NOTHING = Object.keys(SYRUP_BRANDS).some((k) => Number(config.brevo.lists[k]) > 0)
+  ? 'Napíšeme ti, keď bude.'
+  : 'Letáky kontrolujeme dvakrát denne, pozri sa sem znova.';
 
-/** /samo – zľavy na sirupy pre Samka. Rovnaký úvod ako hlavná stránka, bez odberu e-mailom. */
+/** /samo – zľavy na sirupy Zlatá studňa a Caprio pre Samka. Rovnaký úvod aj odber e-mailom ako na hlavnej stránke. */
 export function samoPage({ deals: list, lastCheck }) {
   const stores = listJoin([...new Set(list.map((d) => storeLocative(d.store)))]);
   const count = list.length === 1 ? '1 sirup' : list.length < 5 ? `${list.length} sirupy` : `${list.length} sirupov`;
@@ -321,7 +333,7 @@ export function samoPage({ deals: list, lastCheck }) {
     samo: true,
     lastCheck,
     path: '/samo/',
-    share: `${answerParts(list, SAMO_NOTHING).join(' ')} Sirupy v akcii v Kauflande, Bille, Lidli a COOP Jednote.`,
+    share: `${answerParts(list, SAMO_NOTHING).join(' ')} Zlatá studňa a Caprio v akcii v Kauflande, Bille, Lidli a COOP Jednote. Upozorníme ťa e-mailom.`,
     body: `
   <section class="hero">
     ${wall()}
@@ -330,17 +342,19 @@ export function samoPage({ deals: list, lastCheck }) {
         <h1>Je tvoj sirup v akcii?</h1>
         ${answer(list, SAMO_NOTHING)}
       </div>
-      <a class="btn btn--paper" href="#akcie">Pozri akcie</a>
+      <a class="btn btn--paper" href="#odber">Chcem upozornenie</a>
     </div>
   </section>
 
   <section class="section" id="akcie">
     <header class="section__head">
       <h2 data-split>Sirupy v akcii</h2>
-      <p class="live reveal"><span class="dot"></span><span>${list.length ? `${count} v ${e(stores)}` : 'Teraz nie je v akcii žiadny sirup'}${lastCheck ? ` · skontrolované ${checkedAt(lastCheck)}` : ''}</span></p>
+      <p class="live reveal"><span class="dot"></span><span>${list.length ? `${count} v ${e(stores)}` : 'Zlatá studňa ani Caprio teraz nie sú v akcii'}${lastCheck ? ` · skontrolované ${checkedAt(lastCheck)}` : ''}</span></p>
     </header>
-    ${deals(list, [[SYRUP, 'Sirupy']])}
-  </section>`,
+    ${deals(list, SYRUP_IDLE)}
+  </section>
+
+  ${signup({ samo: true })}`,
   });
 }
 
@@ -348,37 +362,54 @@ function faqItem(question, answerHtml, open = false) {
   return `<details class="qa reveal" name="otazky"${open ? ' open' : ''}><summary>${e(question)}<span class="qa__icon" aria-hidden="true"></span></summary><div class="qa__body"><p>${answerHtml}</p></div></details>`;
 }
 
-function signup() {
-  const lists = Object.entries(BRANDS).filter(([k]) => Number(config.brevo.lists[k]) > 0);
+/** Jedna karta vo výbere odberu. Značka, ktorej zoznam v Brevo ešte nie je nastavený, je vidieť, ale nedá sa zaškrtnúť. */
+function pickCard([key, brand], i, samo) {
+  const listId = Number(config.brevo.lists[key]);
+  const img = `<img src="/img/cans/${e(key)}.webp" alt="" width="350" height="900" loading="lazy" decoding="async">`;
+  if (!listId) {
+    return `
+        <div class="pick pick--soon reveal" data-delay="${i}">
+          <span class="pick__card">${img}<span class="pick__name">${e(brand.name)}</span><span class="pick__soon">Čoskoro</span></span>
+        </div>`;
+  }
+  return `
+        <label class="pick reveal" data-delay="${i}">
+          <input type="checkbox" name="lists[]" value="${listId}" checked>
+          <span class="pick__card">
+            ${img}
+            <span class="pick__name">${e(brand.name)}</span>
+            <span class="pick__check" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16"><path d="m5 12.5 4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          </span>
+        </label>`;
+}
+
+/** Odber e-mailom: na hlavnej stránke energeťáky, na /samo sirupy Zlatá studňa a Caprio. Rovnaký formulár, iné značky. */
+function signup({ samo = false } = {}) {
+  const items = Object.entries(samo ? SYRUP_BRANDS : BRANDS);
+  const active = items.filter(([k]) => Number(config.brevo.lists[k]) > 0);
+  const what = samo ? 'sirupy' : 'plechovky';
   const head = `<header class="signup__head">
       <h2 data-split>Chcem vedieť o akcii ako prvý</h2>
-      <p class="reveal">Vyber si plechovky. E-mail príde len vtedy, keď je niektorá z nich v letáku v zľave.</p>
+      <p class="reveal">Vyber si ${what}. E-mail príde len vtedy, keď je niektorý z nich v letáku v zľave.</p>
       <ol class="signup__steps reveal">
-        <li>Vyberieš plechovky a zadáš e-mail</li>
+        <li>Vyberieš ${what} a zadáš e-mail</li>
         <li>Potvrdíš odkaz v e-maile</li>
         <li>Príde správa, keď je akcia</li>
       </ol>
     </header>`;
-  if (!config.brevo.formUrl || !lists.length) {
-    return `<section class="signup" id="odber">${head}<p class="signup__soon reveal">Odber e-mailom spúšťame už čoskoro.</p></section>`;
+  const picks = `<fieldset class="picks picks--${items.length}">
+        <legend class="sr-only">Značky</legend>${items.map((item, i) => pickCard(item, i, samo)).join('')}
+      </fieldset>`;
+  if (!config.brevo.formUrl || !active.length) {
+    // Značky ukážeme aj bez odberu, nech je vidieť, čo sa chystá.
+    return `<section class="signup" id="odber">${head}<div class="signup__form">${picks}<p class="signup__soon reveal">Odber e-mailom spúšťame už čoskoro.</p></div></section>`;
   }
   // Formulár sa odosiela priamo do Brevo, ktoré pošle potvrdzovací e-mail (double opt-in).
   return `
   <section class="signup" id="odber">
     ${head}
     <form method="post" action="${e(config.brevo.formUrl)}" class="signup__form">
-      <fieldset class="picks">
-        <legend class="sr-only">Značky</legend>
-        ${lists.map(([k, b], i) => `
-        <label class="pick reveal" data-delay="${i}">
-          <input type="checkbox" name="lists[]" value="${Number(config.brevo.lists[k])}" checked>
-          <span class="pick__card">
-            <img src="/img/cans/${k}.webp" alt="" width="350" height="900" loading="lazy" decoding="async">
-            <span class="pick__name">${e(b.name)}</span>
-            <span class="pick__check" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16"><path d="m5 12.5 4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-          </span>
-        </label>`).join('')}
-      </fieldset>
+      ${picks}
       <div class="signup__fields reveal">
         <label class="email">
           <span class="sr-only">Tvoj e-mail</span>
@@ -391,10 +422,10 @@ function signup() {
           <input type="checkbox" name="OPT_IN" value="1" required>
           <span>Súhlasím so spracovaním mojej e-mailovej adresy na zasielanie upozornení na akcie podľa <a href="/sukromie/" target="_blank">zásad ochrany súkromia</a>. Súhlas môžem kedykoľvek odvolať.</span>
         </label>
-        <label class="check">
+        ${samo ? '' : `<label class="check">
           <input type="checkbox" required>
           <span>Mám aspoň 18 rokov.</span>
-        </label>
+        </label>`}
         <p class="signup__hint">Pošleme ti potvrdzovací e-mail. Odber začne až po kliknutí na odkaz v ňom. Adresu za nás uchováva a e-maily odosiela služba Brevo.</p>
       </div>
     </form>
@@ -406,7 +437,7 @@ export function subscribedPage({ deals: list }) {
   return layout({
     title: 'Odber je aktívny',
     noindex: true,
-    body: `${message('Odber je aktívny', 'Ďakujeme! E-mail ti pošleme vždy, keď v letákoch nájdeme novú akciu na tvoj energeťák. Odhlásiť sa môžeš v každom e-maile.')}
+    body: `${message('Odber je aktívny', 'Ďakujeme! E-mail ti pošleme vždy, keď v letákoch nájdeme novú akciu na tvoje značky. Odhlásiť sa môžeš v každom e-maile.')}
     ${
       list.length
         ? `<section class="section section--flush"><header class="section__head"><h2 data-split>Čo je v akcii práve teraz</h2></header>${deals(list)}</section>`
@@ -454,7 +485,7 @@ export function privacyPage() {
   <p>Samotná stránka nepoužíva cookies, analytické ani reklamné nástroje a nevytvárame žiadne profily.</p>
 
   <h2>3. Účel a právny základ</h2>
-  <p>Údaje spracúvame výlučne na zasielanie e-mailových upozornení na akcie energetických nápojov v obchodoch Kaufland, BILLA, Lidl a COOP Jednota. Právnym základom je tvoj súhlas podľa čl. 6 ods. 1 písm. a) nariadenia GDPR a § 13 ods. 1 písm. a) zákona č. 18/2018 Z. z. o ochrane osobných údajov. Zasielanie e-mailov na základe súhlasu je v súlade aj s § 116 zákona č. 452/2021 Z. z. o elektronických komunikáciách.</p>
+  <p>Údaje spracúvame výlučne na zasielanie e-mailových upozornení na akcie energetických nápojov a sirupov Zlatá studňa a Caprio v obchodoch Kaufland, BILLA, Lidl a COOP Jednota. Právnym základom je tvoj súhlas podľa čl. 6 ods. 1 písm. a) nariadenia GDPR a § 13 ods. 1 písm. a) zákona č. 18/2018 Z. z. o ochrane osobných údajov. Zasielanie e-mailov na základe súhlasu je v súlade aj s § 116 zákona č. 452/2021 Z. z. o elektronických komunikáciách.</p>
   <p>Súhlas udeľuješ dvojstupňovo: zaškrtnutím políčka a potvrdením odkazu v e-maile (double opt-in). Služba je určená len osobám starším ako 18 rokov.</p>
 
   <h2>4. Kto ďalší má k údajom prístup</h2>
@@ -491,11 +522,11 @@ export function termsPage() {
   <p class="muted">Platné od 2. 11. 2026</p>
 
   <h2>1. O službe</h2>
-  <p>${e(config.siteName)} je bezplatný, nekomerčný a nezávislý projekt, ktorý informuje o akciách na energetické nápoje Monster, Red Bull a Hell a na sirupy v obchodoch Kaufland, BILLA, Lidl a COOP Jednota na Slovensku.</p>
+  <p>${e(config.siteName)} je bezplatný, nekomerčný a nezávislý projekt, ktorý informuje o akciách na energetické nápoje Monster, Red Bull, Hell a Semtex a na sirupy Zlatá studňa a Caprio v obchodoch Kaufland, BILLA, Lidl a COOP Jednota na Slovensku.</p>
 
   <h2>2. Nie sme oficiálna stránka</h2>
-  <p>Služba nie je prepojená so spoločnosťami Monster Energy Company, Red Bull GmbH, HELL ENERGY Magyarország Kft., Kaufland Slovenská republika v.o.s., BILLA s.r.o., Lidl Slovenská republika, v.o.s. ani COOP Jednota Slovensko, spotrebné družstvo, nie je nimi sponzorovaná, podporovaná ani schválená. Uvedené názvy sú ochranné známky ich vlastníkov. Používame ich výlučne na pomenovanie produktov a obchodov, o ktorých informujeme, a ich logá ani grafiku nepoužívame na označenie tejto služby.</p>
-  <p>Pri akcii zobrazujeme fotografiu produktu, aby bolo jasné, o ktorý výrobok ide: pri Kauflande a Lidli fotografiu z ich verejnej ponuky, inak ilustračný obrázok (fotografiu bežnej plechovky danej značky z verejnej ponuky obchodu alebo výrobcu, pri sirupoch nakreslenú fľašu), označený ako ilustračný. Fotografie plechoviek v úvode stránky sú z Wikimedia Commons pod licenciou CC BY-SA 4.0 s uvedením autora v pätičke. Z letákov inak uvádzame len stručné faktické údaje (názov produktu, cenu, platnosť) s odkazom na zdroj.</p>
+  <p>Služba nie je prepojená so spoločnosťami Monster Energy Company, Red Bull GmbH, HELL ENERGY Magyarország Kft., výrobcami značiek Semtex, Zlatá studňa a Caprio, Kaufland Slovenská republika v.o.s., BILLA s.r.o., Lidl Slovenská republika, v.o.s. ani COOP Jednota Slovensko, spotrebné družstvo, nie je nimi sponzorovaná, podporovaná ani schválená. Uvedené názvy sú ochranné známky ich vlastníkov. Používame ich výlučne na pomenovanie produktov a obchodov, o ktorých informujeme, a ich logá ani grafiku nepoužívame na označenie tejto služby.</p>
+  <p>Pri akcii zobrazujeme fotografiu produktu, aby bolo jasné, o ktorý výrobok ide: pri Kauflande a Lidli fotografiu z ich verejnej ponuky, inak ilustračný obrázok (fotografiu bežnej plechovky alebo fľaše danej značky z verejnej ponuky obchodu alebo výrobcu, pri Semtexe nakreslenú plechovku), označený ako ilustračný. Fotografie plechoviek v úvode stránky sú z Wikimedia Commons pod licenciou CC BY-SA 4.0 s uvedením autora v pätičke. Z letákov inak uvádzame len stručné faktické údaje (názov produktu, cenu, platnosť) s odkazom na zdroj.</p>
 
   <h2>3. Ako zisťujeme akcie a ich presnosť</h2>
   <p>Údaje zisťuje program automaticky z verejne dostupných stránok a letákov obchodov, dvakrát denne, v súlade so súbormi robots.txt a bez obchádzania akýchkoľvek technických opatrení. Automatické čítanie letákov sa môže pomýliť, akcia sa môže líšiť podľa predajne alebo môže byť tovar vypredaný. Záväzné sú vždy informácie obchodu (leták, cenovka, pokladnica). Za rozhodnutia urobené na základe údajov zo služby nezodpovedáme v rozsahu, v akom to právne predpisy dovoľujú.</p>

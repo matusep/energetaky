@@ -5,7 +5,7 @@ import { fetchKaufland } from './sources/kaufland.js';
 import { fetchBilla } from './sources/billa.js';
 import { fetchLidl } from './sources/lidl.js';
 import { fetchCoop } from './sources/coop.js';
-import { BRANDS } from './brands.js';
+import { isTracked, listKey } from './brands.js';
 import { sendDealCampaigns } from './brevo.js';
 import { build } from './build.js';
 import { runWelcome } from './welcome.js';
@@ -25,6 +25,7 @@ async function runSource(fn) {
     if (found === null) return { ok: true, skipped: true };
     let added = 0;
     for (const { externalId, ...d } of found) {
+      if (!isTracked(d)) continue; // napr. sirup inej značky než Zlatá studňa a Caprio
       const existing = deals.get(externalId);
       if (!existing) added++;
       deals.set(externalId, { id: externalId, ...d, firstSeen: existing?.firstSeen ?? report.at, notifiedAt: existing?.notifiedAt ?? null });
@@ -56,10 +57,10 @@ report.coop = await runSource(async () => {
 });
 state.pdfParser = PDF_PARSER;
 
-// Akcie z predošlých letákov, ktoré už neplatia, mažeme hneď.
+// Akcie z predošlých letákov, ktoré už neplatia (alebo ich už nesledujeme, napr. hračka „Monster Truck“), mažeme hneď.
 report.removed = 0;
 for (const [id, d] of deals) {
-  if (d.validTo < today()) {
+  if (d.validTo < today() || !isTracked(d)) {
     deals.delete(id);
     report.removed++;
   }
@@ -67,8 +68,8 @@ for (const [id, d] of deals) {
 
 report.images = await syncImages(deals.values());
 
-// E-maily idú len o energeťákoch; sirupy (/samo) sa iba zobrazujú na stránke.
-const pending = [...deals.values()].filter((d) => !d.notifiedAt && !hidden.has(d.id) && BRANDS[d.brand]);
+// E-maily idú o energeťákoch aj o sledovaných sirupoch (každá značka má svoj zoznam v Brevo).
+const pending = [...deals.values()].filter((d) => !d.notifiedAt && !hidden.has(d.id) && isTracked(d) && listKey(d) !== 'sirup');
 if (!config.notify) report.notify = 'vypnuté v site.config.json';
 else if (!pending.length) report.notify = 'nič nové';
 else if (pending.length > MAX_AUTO_NOTIFY) report.notify = `pozastavené – ${pending.length} nových akcií naraz, skontroluj ich`;
