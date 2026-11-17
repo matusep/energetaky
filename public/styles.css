@@ -150,6 +150,8 @@ a:hover > .arrow, button:hover > .arrow { transform: translateX(4px); }
   background: var(--stage); border-radius: calc(var(--radius) - 8px);
   overflow: hidden;
   perspective: 900px;
+  /* Na širokých obrazovkách a pri oddialení by sa karta (a v nej fľaša) natiahla na celú šírku – výšku ohraničíme. */
+  max-height: 520px;
 }
 .can {
   position: relative; z-index: 1;
