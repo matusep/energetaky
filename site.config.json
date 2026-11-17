@@ -13,9 +13,9 @@
       "monster": 3,
       "redbull": 4,
       "hell": 5,
-      "semtex": 0,
-      "zlatastudna": 0,
-      "caprio": 0
+      "semtex": 7,
+      "zlatastudna": 8,
+      "caprio": 9
     }
   },
   "notify": true
