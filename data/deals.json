@@ -1,35 +1,5 @@
 [
   {
-    "id": "billa:0a5bfde466:20:hell:99",
-    "store": "billa",
-    "brand": "hell",
-    "product": "Hell, energetický nápoj, viac druhov, 0,5 l",
-    "priceCents": 99,
-    "regularPriceCents": null,
-    "validFrom": "2026-11-11",
-    "validTo": "2026-11-17",
-    "note": "+ záloha za obal",
-    "sourceUrl": "https://www.billa.sk/letaky-a-akcie/aktualny-letak",
-    "firstSeen": "2026-11-11T06:08:13.025Z",
-    "notifiedAt": "2026-11-11T06:08:13.025Z",
-    "image": null
-  },
-  {
-    "id": "billa:0a5bfde466:20:sirup:99",
-    "store": "billa",
-    "brand": "sirup",
-    "product": "Caprio, sirup, rôzne druhy, 0,7 l",
-    "priceCents": 99,
-    "regularPriceCents": null,
-    "validFrom": "2026-11-11",
-    "validTo": "2026-11-17",
-    "note": "",
-    "sourceUrl": "https://www.billa.sk/letaky-a-akcie/aktualny-letak",
-    "firstSeen": "2026-11-11T06:08:13.025Z",
-    "notifiedAt": null,
-    "image": null
-  },
-  {
     "id": "kaufland:20261112000000.00134091.SK.1020.0000018031",
     "store": "kaufland",
     "brand": "monster",

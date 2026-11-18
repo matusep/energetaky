@@ -1,15 +1,15 @@
 {
   "billaPdf": "https://view.publitas.com/64070/3512291/pdfs/7e9d757d-efee-4cb8-ad1c-986ef1b6f228.pdf",
   "lastCheck": {
-    "at": "2026-11-17T20:51:29.404Z",
+    "at": "2026-11-18T07:20:56.210Z",
     "kaufland": {
       "ok": true,
       "found": 5,
       "added": 0
     },
     "billa": {
-      "ok": true,
-      "skipped": true
+      "ok": false,
+      "error": "Súbor je príliš veľký (368526459 B)"
     },
     "lidl": {
       "ok": true,
@@ -20,15 +20,14 @@
       "ok": false,
       "error": "Súbor je príliš veľký (> 157286400 B)"
     },
-    "removed": 0,
+    "removed": 2,
     "images": {
       "downloaded": 0,
       "removed": 0,
       "failed": 0
     },
-    "notify": "oznámené akcie: 0 z 2",
+    "notify": "oznámené akcie: 0 z 1",
     "notifyErrors": [
-      "Caprio: Brevo POST /emailCampaigns: HTTP 400 {\"code\":\"invalid_parameter\",\"message\":\"There are no contacts associated with the given recipients info\"}\n",
       "Zlatá studňa: Brevo POST /emailCampaigns: HTTP 400 {\"code\":\"invalid_parameter\",\"message\":\"There are no contacts associated with the given recipients info\"}\n"
     ],
     "welcome": "žiadni noví odberatelia"
