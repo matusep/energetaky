@@ -1,10 +1,10 @@
 {
   "billaPdf": "https://view.publitas.com/64070/3512291/pdfs/7e9d757d-efee-4cb8-ad1c-986ef1b6f228.pdf",
   "lastCheck": {
-    "at": "2026-11-19T07:18:33.150Z",
+    "at": "2026-11-19T20:30:14.625Z",
     "kaufland": {
       "ok": true,
-      "found": 5,
+      "found": 3,
       "added": 0
     },
     "billa": {
@@ -20,10 +20,10 @@
       "ok": false,
       "error": "Súbor je príliš veľký (> 157286400 B)"
     },
-    "removed": 1,
+    "removed": 0,
     "images": {
       "downloaded": 0,
-      "removed": 1,
+      "removed": 0,
       "failed": 0
     },
     "notify": "oznámené akcie: 0 z 1",
