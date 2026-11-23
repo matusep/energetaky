@@ -33,11 +33,12 @@
     "welcome": "žiadni noví odberatelia"
   },
   "welcomeLists": {
-    "redbull": 6
+    "redbull": 6,
+    "hell": 10
   },
   "lastWelcome": {
-    "at": "2026-11-02T08:21:03.056Z",
-    "result": "chyba – Brevo POST /emailCampaigns: HTTP 400 {\"code\":\"invalid_parameter\",\"message\":\"There are no contacts associated with the given recipients info\"}\n"
+    "at": "2026-11-23T20:35:56.090Z",
+    "result": "Monster: 1 nových, uvítanie s akciami 0; Red Bull: 1 nových, uvítanie s akciami 1; Hell: 1 nových, uvítanie s akciami 1; Semtex: 1 nových, uvítanie s akciami 0; Zlatá studňa: 1 nových, uvítanie s akciami 0; Caprio: 1 nových, uvítanie s akciami 0"
   },
   "coopPdfs": [
     "https://indd.adobe.com/view/publication/590af435-30be-417f-b45a-b8e6ea296cb1/fyfz/publication-web-resources/pdf/IN4526.pdf",
