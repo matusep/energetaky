@@ -1,10 +1,10 @@
 {
   "billaPdf": "https://view.publitas.com/64070/3512291/pdfs/7e9d757d-efee-4cb8-ad1c-986ef1b6f228.pdf",
   "lastCheck": {
-    "at": "2026-11-25T21:38:30.484Z",
+    "at": "2026-11-26T08:10:20.345Z",
     "kaufland": {
       "ok": true,
-      "found": 6,
+      "found": 3,
       "added": 0
     },
     "billa": {
@@ -17,13 +17,14 @@
       "added": 0
     },
     "coop": {
-      "ok": false,
-      "error": "Súbor je príliš veľký (> 157286400 B)"
+      "ok": true,
+      "found": 1,
+      "added": 0
     },
-    "removed": 0,
+    "removed": 3,
     "images": {
       "downloaded": 0,
-      "removed": 0,
+      "removed": 4,
       "failed": 0
     },
     "notify": "nič nové",
@@ -38,8 +39,8 @@
     "result": "Monster: 1 nových, uvítanie s akciami 0; Red Bull: 1 nových, uvítanie s akciami 1; Hell: 1 nových, uvítanie s akciami 1; Semtex: 1 nových, uvítanie s akciami 0; Zlatá studňa: 1 nových, uvítanie s akciami 0; Caprio: 1 nových, uvítanie s akciami 0"
   },
   "coopPdfs": [
-    "https://indd.adobe.com/view/publication/590af435-30be-417f-b45a-b8e6ea296cb1/fyfz/publication-web-resources/pdf/IN4526.pdf",
-    "https://indd.adobe.com/view/publication/359d9b25-ca01-4ef7-b256-852b39c9fe68/1/publication-web-resources/pdf/TEMPO_0726.pdf"
+    "https://www.coop.sk/buxus/docs/IN3526_final_small.pdf",
+    "https://indd.adobe.com/view/publication/49f6dee6-11c5-46e9-908c-e6c2a161790f/1/publication-web-resources/pdf/IN4726_online_interaktivny.pdf"
   ],
   "pdfParser": 4
 }
